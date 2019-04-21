@@ -1,0 +1,797 @@
+%% BioMed_Central_Tex_Template_v1.06    %
+%%                                      %
+%  bmc_article.tex            ver: 1.06 %
+%                                       %
+%%IMPORTANT: do not delete the first line of this template
+%%It must be present to enable the BMC Submission system to
+%%recognise this template!!
+
+%%% additional documentclass options:
+%  [doublespacing]
+%  [linenumbers]   - put the line numbers on margins
+
+%%% loading packages, author definitions
+
+\documentclass[twocolumn]{bmcart}
+% uncomment this for twocolumn layout and comment line below
+%\documentclass{bmcart}
+%%% Load packages
+%\usepackage{amsthm,amsmath}
+%\RequirePackage{natbib}
+%\RequirePackage[authoryear]{natbib}% uncomment this for author-year bibliography
+%\RequirePackage{hyperref}
+%\usepackage[utf8]{inputenc} %unicode support
+\usepackage{graphicx}
+\usepackage[fleqn]{amsmath}
+\usepackage[psamsfonts]{amssymb}
+\usepackage{multirow}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+%\usepackage{caption}
+%\usepackage{algpseudocode}
+%\usepackage[applemac]{inputenc} %applemac support if unicode package fails
+%\usepackage[latin1]{inputenc} %UNIX support if unicode package fails
+
+\newlength\myindent
+\setlength\myindent{2em}
+\newcommand\bindent{%
+  \begingroup
+  \setlength{\itemindent}{\myindent}
+  \addtolength{\algorithmicindent}{\myindent}
+}
+\newcommand\eindent{\endgroup}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                             %%
+%%  If you wish to display your graphics for   %%
+%%  your own use using includegraphic or       %%
+%%  includegraphics, then comment out the      %%
+%%  following two lines of code.               %%
+%%  NB: These line *must* be included when     %%
+%%  submitting to BMC.                         %%
+%%  All figure files must be submitted as      %%
+%%  separate graphics through the BMC          %%
+%%  submission process, not included in the    %%
+%%  submitted article.                         %%
+%%                                             %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\includegraphic{}
+\def\includegraphics{}
+%%% Put your definitions there:
+\startlocaldefs
+\endlocaldefs
+%%% Begin ...
+\begin{document}
+%%% Start of article front matter
+\begin{frontmatter}
+\begin{fmbox}
+\dochead{Research}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the title of your article here     %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Reversible designs for extreme memory cost reduction of CNN training}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the authors here                   %%
+%%                                          %%
+%% Specify information, if available,       %%
+%% in the form:                             %%
+%%   <key>={<id1>,<id2>}                    %%
+%%   <key>=                                 %%
+%% Comment or delete the keys which are     %%
+%% not used. Repeat \author command as much %%
+%% as required.                             %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\author[
+   addressref={aff1},                   % id's of addresses, e.g. {aff1,aff2}
+   corref={aff1},                       % id of corresponding address, if any
+   email={tristan.hascoet@me.cs.scitec.kobe-u.ac.jp}   % email address
+]{\inits{TH}\fnm{Tristan} \snm{Hascoet}}
+\author[
+   addressref={aff3},                   % id's of addresses, e.g. {aff1,aff2}
+   corref={aff3},                       % id of corresponding address, if any
+   email={XXX}   			% email address
+]{\inits{QF}\fnm{Quentin} \snm{Febvre}}
+\author[
+   addressref={aff1,aff2},
+   email={ariki@kobe-u.ac.jp}
+]{\inits{YA}\fnm{Yasuo} \snm{Ariki}}
+\author[
+   addressref={aff1,aff2},
+   email={takigu@kobe-u.ac.jp}
+]{\inits{TT}\fnm{Tetsuya} \snm{Takiguchi}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the authors' addresses here        %%
+%%                                          %%
+%% Repeat \address commands as much as      %%
+%% required.                                %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\address[id=aff1]{%                           % unique id
+  \orgname{Kobe University},                  % university, etc
+  \street{1-1 Rokkodaicho, Nada Ward},                     %
+  \postcode{657-0013}                         % post or zip code
+  \city{Kobe},                                % city
+  \cny{Japan}                                 % country
+}
+\address[id=aff2]{%
+  \orgname{Association for Advanced Science and Technology},
+  \street{1-1 Rokkodaicho, Nada Ward},
+  \postcode{657-0013}
+  \city{Kobe},
+  \cny{Japan}
+}
+\address[id=aff3]{%
+  \orgname{Quentin's job},
+  \street{xxx},
+  \postcode{XXX}
+  \city{XXX},
+  \cny{XXX}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter short notes here                   %%
+%%                                          %%
+%% Short notes will be after addresses      %%
+%% on first page.                           %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\begin{artnotes}
+%\note{Sample of title note}     % note to the article
+%\note[id=n1]{Equal contributor} % note, connected to author
+%\end{artnotes}
+%\end{fmbox}% comment this for two column layout
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%%                                          %% 
+%% The Abstract begins here                 %% 
+%%                                          %% 
+%% Please refer to the Instructions for     %% 
+%% authors on http://www.biomedcentral.com  %% 
+%% and include the section headings         %% 
+%% accordingly for your article type.       %% 
+%%                                          %% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\begin{abstractbox}
+\begin{abstract} % abstract
+Training Convolutional Neural Networks (CNN) is a resource intensive task that requires specialized hardware for efficient computation. 
+One of the most limiting bottleneck of CNN training is the memory cost associated with storing the activation values of hidden layers needed for the computation of the weights gradient during the backward pass of the backpropagation algorithm.
+Recently, reversible architectures have been shown to reduce the memory cost of training large CNN by reconstructing the input activation values of hidden layers from their output during the backward pass, circumventing the need to accumulate these activations in memory during the forward pass.
+In this paper, we push this idea to the extreme and analyze reversible network designs yielding minimal training memory footprint.
+We investigate the propagation of numerical errors in long chains of invertible operations and analyse their affect on training. 
+We introduce the notion of pixel-wise memory cost to characterize the memory footprint of model training,
+and propose a new model architecture able to efficiently train arbitrarily deep neural networks with a minimum memory cost of XXX bytes per input pixel.
+This new kind of architecture enables training large neural networks on very limited memory, opening the door for neural network training on embedded device or non-specialized hardware. For instance, we demonstrate training of our model to 94\% accuracy on the CIFAR 10 within XXX minutes on a low-end GTX750 GPU with only 1GB of memory.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%%                                          %% 
+%% The keywords begin here                  %% 
+%%                                          %% 
+%% Put each keyword in separate \kwd{}.     %% 
+%%                                          %% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\begin{keyword}
+\kwd{CNN}
+\kwd{Reversibility}
+\kwd{Memory optimization}
+\kwd{Numerical analysis}
+\end{keyword}
+
+% MSC classifications codes, if any
+%\begin{keyword}[class=AMS]
+%\kwd[Primary ]{}
+%\kwd{}
+%\kwd[; secondary ]{}
+%\end{keyword}
+
+\end{abstractbox}
+\end{fmbox}% uncomment this for twcolumn layout
+\end{frontmatter}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% The Main Body begins here                %%
+%%                                          %%
+%% Please refer to the instructions for     %%
+%% authors on:                              %%
+%% http://www.biomedcentral.com/info/authors%%
+%% and include the section headings         %%
+%% accordingly for your article type.       %%
+%%                                          %%
+%% See the Results and Discussion section   %%
+%% for details on how to create sub-sections%%
+%%                                          %%
+%% use \cite{...} to cite references        %%
+%%  \cite{koon} and                         %%
+%%  \cite{oreg,khar,zvai,xjon,schn,pond}    %%
+%%  \nocite{smith,marg,hunn,advi,koha,mouse}%%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%% start of article main body
+% <put your article body there>
+
+
+\section{Introduction}
+% 1. Catchy Intro
+Convolutional Neural Networks (CNN) have enabled unprecedent progress on a wide array of computer vision task over the last few years.
+One disadvantage of these approaches is their resource consumption: 
+Training deep models within a reasonable amount of time requires special
+Graphical Processing Units (GPU) with numerous cores and large memory capacity.
+Given the practical importance of these models, a lot of research effort has been directed
+towards algorithmic and hardware innovations to improve their resource efficiency such as low-precision arithmetic \cite{}, network pruning for inference \cite{}, or more efficient training algorithms \cite{}.
+
+% 2. Benefits of low-memory training
+In this paper, we focus on a particular aspect of resource efficiency: optimizing the memory cost of training CNNs. 
+We envision several potential benefits from the ability to train large neural networks within limited memory:
+
+% 2.1 Democratization
+\textbf{Democratization of Deep Learning research:} 
+Training large CNN requires special GPUs with large memory capacity. 
+Typical desktop GPUs memory capacity is too small for training large CNNs.
+As a result, getting into deep learning research comes with the barrier cost of either buying specialized hardware or renting live instances from cloud service providers. 
+Reducing the memory cost of deep model training would allow to train deep nets on standard graphic cards without the need for specialized hardware, effectively removing this barrier cost.
+In this paper, we demonstrate efficient training of a CNN on the CIFAR10 dataset (XXX\% accuracy within XXX minutes) on an Nvidia GTX750 with only 1GB of memory.
+
+% 2.2
+\textbf{On-device training:}
+With mobile applications, a lot of attention has been given to optimize inference on edge device with limited computation resources.
+Training state-of-the-art CNN on embedded devices, however, has still received little attention.
+Efficient on-device training is a challenging task for the underlying power efficiency, computation and memory optimization challenges it involves.
+As such, CNN training has thus far been delegated to large cloud servers, and trained CNN are typically deployed to embedded device fleets over the network.  
+On-device training would allow to bypass these server-client interactions over the network. 
+We can think of several potential applications of on-device training, including:
+\begin{itemize}
+ \item Life-long learning: Autonomous systems deployed in evolving environment like drones, robots or sensor networks might benefit from life-long learning (or online learning) to adapt to their changing environment. 
+On-device training would enable such application without the expensive communication burden of having edge-devices continuously sending their data to remote servers over the network. It would also provide resilience to network failures in critical applications.
+ \item In privacy-critical applications such as biometric mobile phone authentification, users might not want to have their data sent over the network. 
+On-device training would allow fine-tuning recognition models on their local data without sending sensitive data over the network.
+\end{itemize}
+
+In this work, we propose an architecture with minimal training memory cost requirements which enables training within the tight mempry constraints of embedded device. 
+
+% 2.3
+\textbf{Research in optimization:}
+Recent works on stochastic optimization algorithms have highlighted the benefits of large batch training \cite{}.
+For example, in Imagenet, linear speed-ups in training have been observed with increasing batch sizes up to tens of thousands of samples \cite{}.
+Optimizing the memory cost of CNN training may allow further research on the optimization tradeoffs of large batch training.
+For small datasets like MNIST or CIFAR10, we are able to process the full dataset in XXX memory.
+Although large batch training on such small dataset is very computationally inefficient with current stochastic optimization algorithms \cite{},
+the ability to process the full dataset in one pass allows to easily train CNNs on the true gradient and 
+facilitate research on optimization techniques outside the realm of Stochastic Gradient Descent to be investigated.
+
+% Paper Overview
+In this paper, we build on recent works on reversible networks \cite{} and ask the question: 
+how far can we reduce CNNs training memory cost using reversible designs with minimal impact on the accuracy and computational cost?
+To do so, we take as a starting point the Resnet-18 architecture and analyse its training memory requirements.
+We then analyze the memory cost reduction of invertible designs successively introduced in the RevNet and iRevNet architectures.
+We identify the memory bottleneck of these architectures which leads us to introduce a layer-wise invertible architectures.
+However, we observe that layer-wise invertible networks accumulate numerical errors accross their layers, which leads to numerical instabilities impacting model accuracy.  
+We characterize the accumulation of numerical errors within long chains of revertible operations and investigate their affect on model accuracy.
+To mitigate the impact of these numerical errors on the model accuracy, we propose both a reparameterization of invertible layers and a hybrid architecture of layer-wise and residual-wise invertible modules to stabilize training.
+
+% Summary of the contribution
+Our main result is to present a new architecture that allows to efficiently train a CNN with minimal memory cost of XXXbytes per pixel.
+Using a large batch size of XXX, we are able to reach XXX\% accuracy on the CIFAR10 dataset within XXX minutes using only XXX of memory. 
+
+\section{Related Work}
+\subsection{Reversibility}
+
+Reversible network designs have been proposed for various purposes including generative modeling, visualization, solving inverse problems, or theoretical analysis of hidden representations.
+
+Flow-based generative models use analytically invertible transformations to compute the change of variable formula. Invertibility is either achieved through channel paritioning (XXX \cite{} Real-NVP \cite{}) or weight matrix factorization (GLOW \cite{}) or constraining unitary operations to easily invertible scale and shift operations (Normalization flows \cite{})
+
+Neural ODEs take a drastically different take on invertibility: They leverage the analogy between residual networks and the Euler method to define continuous hidden states systems.
+The conceptual shift from a finite set of discrete transformations to a continuous regime gives them invertibility for free. 
+
+The RevNet model \cite{} was inspired by the Real-NVP generative model. They adapt the idea of channel partitioning and propose an efficient architecture for discriminative learning.
+The iRevNet model builds on the RevNet architecture: they propose to replace the irreversible max-pooling operation with an invertible operation that reshapes the hidden activation states
+so as to compensate the loss of spatial resolution by an increase in the channel dimension. 
+By preserving the volume of activations, their pooling operation allows for exact reconstruction of the inverse.
+The authors focus on the analysis of the learned representations rather than resource efficiency.
+From a resource optimization point of view, one downside of their method is that the proposed invertible pooling increases the number of channels.
+As the size of the convolution kernel weights grows quadratacally in the number of channels, the memory cost associated with storing the model weights becomes a major memory bottleneck.
+We address this issue in our proposed architecture.
+In XXX, the authors use these reversible architectures to study undesirable invariances in feature space.
+
+In XXX, the authors propose a unified architecture performing well on both generative and discriminative tasks.
+They enforce inversibility by regularizing the weights of residual blocks so as to guarantee the existence of an inverse operation.
+However, the computation of the inverse operation is perfored with power iteration methods which is not optimal from a computational perspective.
+
+Finally, XXX propose to reconstruct the input activations of normalization and activation layers using their inverse function during the backward pass.
+We propose a similar method for layer-wise invertible networks. 
+However, as their model does not invert convolution layers, 
+it does not feature long chains of invertible operations so that they do not  need to account for numerical instabilities.
+Instead, our proposed model features long chains of invertible operations so that we need to characterize numerical errors in order to stabilize training.
+
+\subsection{Resource efficiency}
+
+Research into resource optimization of CNNs cover a wide array of techniques, ost of which are orthogonal to our work. We briefly present some of these works:
+
+% Architecture
+On the architectural side, Squeezenet was first proposed as an efficient neural architecture reducing the size of the model's weight while maintining high classification accuracy.
+MobileNet use depth-wise separable to further reduce the computational cost of inference for embedded device applications.
+
+% Pruning & lottery ticket
+Network pruning is a set of techniques \cite{} developped to decrease the model weight size and computational complexity.
+Network pruning works by removing the network weights that contribute the least to the model output.
+Pruning deep models has been shown to drastically reduce the memory cost and computation time of inference without  significantly hurting model accuracy.
+
+Although pruning has been concerned with optimization of the resource inference, the recently proposed lotery tickect hypothesis has shown than specifically pruned networks could  be trained from scratch to high accuracy. 
+This may be an interesting and complementary line of work to investigate in the future to reduce training memory costs.
+
+% low precision arithmetic.
+Low precision arithmetic has been proposed as a mean to reduce both memory consumption and computation time of deep learning models. Mixed precision training \cite{} combines float16 with float32 operations to avoid numerical instabilities due to either overflow or underflow.
+For inference,  integer quantization \cite{} has been shown to drastically improve the computation and memory efficiency and has been successfully deployed on both edge devices and data centers.
+
+% Gradient checkpointing
+Most related to our work, gradient checkpointing was introduced as a mean to reduce the memory cost of deep neurla network training.
+Gradient checkpointing, first introduced in \cite{}, trades off memory for computational complexity by storing only a subset of the activations during the forward pass.
+During the backward pass, missing activations are recomputed from the stored activations as needed by the backpropagation algorithm.
+Several works \cite{} have since built on the original gradient checkpointing algorithm to improve this memory/computation trade-off.  
+However, reversible models like RevNet have been shown to offer better computational complexity than gradient checkpointing,
+at the cost of constraining the model architecture to invertible residual blocks.
+
+\section{Preliminaries}
+
+In this section, we analyze the memory footprint of training architectures with different reversibility patterns.
+We start by introducing some notations and briefly review the backpropagation algorithm
+in order to characterize the training memory consumption of deep neural networks. 
+In our analysis, we use a Resnet-18 as a reference baseline and analyze its training memory footprint.
+We then gradually augment the baseline architecture with reversible desgins and analyse their impact on computation and memory consumption.
+
+\subsection{Backpropagation \& Notations}
+
+Let us consider a model $F$ made of $N$ sequential layers trained to minimize the error $e$ defined by a loss function $\mathcal{L}$ on an input $x$ and ground-truth label $\bar{y}$:
+
+ \begin{subequations}
+ 	\begin{align}
+ 	F &: x \rightarrow y \\
+ 	F &: x \rightarrow f_N \circ ... \circ f_1 \circ f_0(x) \\
+ 	e &=  \mathcal{L}(y, \bar{y})
+ 	\end{align}
+ \end{subequations}
+
+During the forward pass, each layer $f_i$ takes as input the activations $z_{i-1}$ from the previous layer and outputs activation features $z_i=f_i(z_{i-1})$, with $z_0=x$ and $z_N=y$ being the input and output of the network respectively.
+
+During the backward pass, the gradient of the loss with respect to the hidden activations are propagated backward through the layers of the networks using the chain rule as:
+
+%We note the gradient of the loss with respect to activations at layer $i$ as $g_z^i=\frac{\delta \mathcal{L}}{\delta z_{i}}$ and the gradients with respect to parameters $\theta$ as $g_\theta^i=\frac{\delta \mathcal{L}}{\delta \theta}$. We note Jacobian of a layer $i$ transformation with respect to its input $z_{i-1}$ as $J_z^i=\frac{z_i}{\delta z_{i-1}}$ and with respect to its parameters $J_\theta^i=\frac{z_i}{\delta \theta}$.
+
+\begin{equation}
+\frac{\delta \mathcal{L}}{\delta z_{i-1}} = \frac{\delta \mathcal{L}}{\delta z_{i}}  \times \frac{\delta z_{i}}{\delta z_{i-1}}
+\end{equation}
+
+Before propagating the loss gradient with respect to its input to the previous layer as, each parameterized layer computes the gradient of the loss with respect to its parameters. In vanilla SGD, for a given learning rate $eta$, gradients are subsequently used to update the weight values :
+
+\begin{subequations}
+\begin{align}
+\frac{\delta \mathcal{L}}{\delta \theta_i} & =\frac{\delta \mathcal{L}}{\delta z_{i}}  \times \frac{\delta z_{i}}{\theta_i} \\
+\theta_i & \leftarrow \theta_i - \eta \times \frac{\delta \mathcal{L}}{\delta \theta_i}
+\end{align}
+\end{subequations}
+
+However, the analytical form of the weight gradients are functions of the layer's input activations $z_{i-1}$. For example, in the case of convolutions, the weight gradient can be computed as the convolution of the output's gradient by the transpose of the input activations:
+
+ \begin{equation}
+\frac{\delta \mathcal{L}}{\delta \theta_i} = \frac{\delta \mathcal{L}}{\delta z_i} \star z_{i-1}^T
+ \end{equation}
+
+Hence, computing the derivative of the loss function with respect to each layer's parameters requires knowledge of the input activation values $z_i$.  In the standard backpropagation algorithm, hidden layers activations are stored upon computation during the forward pass. Activations accumulate in live memory buffers until used for the weight gradients computation in the backward pass. Once the weight gradients computed, the hidden activation buffers can be freed from live memory. 
+However, the accumulation of activation values stored within each parameterized layer along the depth of the network during the forward pass creates a major bottleneck in GPU memory, which constrains both input and model sizes.
+
+The idea behind reversible designs is to constrain the network architecture to feaure invertible transformations. 
+Doing so, activations $z_i$ in lower layers can be recomputed through inverse operations from the activations of $z_{j>i}$ of higher layers. 
+In such architectures, activation do not need to be kept in memory during the forward pass as they can be recomputed from higher layer activations during the backward pass, effectively freeing up the GPU live memory.
+
+\subsection{Memory footprint}
+
+We denote the memory footprint of training a neural network as a value $\mathcal{M}$ in bytes. Given an input $x$ and groundtruth $\bar{y}$, the memory footprint represents the peak memory consumption during an interation of training including the forward and backward pass. 
+We divide the total training memory footprint $\mathcal{M}$ into several memory cost factors: the cost of storing the model weights, the hidden activations, and the gradients:
+
+\begin{equation}
+\mathcal{M} = M_{\theta} + M_{z} + M_{g}
+\end{equation}
+
+In the following subsections, we detail the memory footprints existing architectures with different reversibility patterns. 
+To help the us formalize these memory cost, we further introduce the following notations: let $n(x)$ denote the number of elements in tensor $x$, i.e.; if $x$ is an $h \times w$ matrix, then $n(x)=h \times w$. 
+Let $bpe$ be the memory cost in bytes per elements of a given precision. 
+For float32 tensors, $bpe=4$. We use $bs$ to denote the batch size, and $c_i$ to denote the number of channels at layer $i$.
+
+\subsection{Vanilla ResNet}
+
+The architecture of a vanilla ResNet-18 is shown in Figure 1.
+Vanilla ResNet do not use reversible computations so that the input activations of all parameterized layers need to be accumulated in memory during the forward pass for the computation of the weight gradients to be done in the backward pass.
+
+Hence the peak memory footprint happens at the beginning of the backward pass when the top layer's activation gradients need to be stored in memory in addition to the full set of hidden activation values.
+
+Let us denote by $P \subset N$ be the subset of parameterized layers of the $F$ (i.e.; convolutions and batch normalization layers, excluding activation functions and pooling layers). Then the memory cost associated with storing the hidden activation values is: 
+
+\begin{subequations}
+\begin{align}
+M_{z} &= \sum_{i \in P} n(z_i) \times bpe \\
+M_{z} &= \sum_{i \in P} bs \times c_i \times h_i \times w_i \times bpe 
+\end{align}
+\end{subequations}
+
+Where $h_i$ and $w_i$ represent the spatial dimensions of the activation values at layer $i$.
+$h_i$ and $w_i$ are determined by the input image size $h \times w$ and the pooling factor $p_i$ of layer $i$, so we can factor out both the spatial dimensions and the batch size from this equation, yielding a memory cost per input pixel $M'$:
+
+\begin{subequations}
+\begin{align}
+M_{z} &= \times \sum_{i \in P} bs \times h \times w \times p_i \times c_i \times bpe \\
+M_{z} &= bs \times h \times w \times \sum_{i \in P} p_i \times c_i \times bpe \\
+M_{z}' &= M_{z} / (bs \times h \times w)  \\ß
+M_{z}' &= \sum_{i \in P} p_i \times c_i \times bpe 
+\end{align}
+\end{subequations}
+
+The memory footprint of the weights is given by:
+
+\begin{subequations}
+\begin{align}
+ M_{\theta} &= \sum_{i \in P}  n(\theta_i)\times bpe \\
+ M_{\theta} &= \sum_{i \in P} c_i \times c_{i-1} \times k^2 \times bpe
+\end{align}
+\end{subequations}
+
+% Introduce memory cost per pixel
+The memory footprint of the gradients correspond to the size of the gradient buffers at the time of peak memory usage. In a vanilla ResNet18 model, this peak memory usage happens during the the backward pass through the last convolution of the network.
+Hence, the memory footprint of the gradients correspond to the memory cost of storing the gradients with respect to either the input or the output of this layer:
+
+\begin{equation}
+	M_{g} = max(n(g_i), n(g_i+1))
+\end{equation}
+
+The numerical evaluation of the total memory cost is given in the experiment section in which we compare different architectures.
+
+\subsection{RevNet}
+% Explain invertible and non-invertible layers
+The RevNet architecture introduce revertible blocks as drop-in replacements of the residual blocks. 
+Revertible blocks have analytical inverses that allow for computation of both their input and hidden activation values from their output activations. 
+Two factors create memory bottlenecks which we refer to as local and global bottlenecks.
+
+First, the RevNet architecture features non-volume preserving layers for which the inverse can not be computed. 
+These layers include max-pooling layers and the convolution layers that increase the number of output channels. 
+As these layers do not have analytical inverses, they must store in memory the activation values of their input. 
+We refer to the memory cost associated with storing these activations as the global bottleneck, as these activations need to be accumulated throughout the full forward pass.
+
+The local memory bottleneck has to do with synchronization of the reversible block computations. 
+Figure XXX illustrates the process of backpropagating through a reversible block.
+First, the input activation values of the parameterized hidden layers within the reversible need are recovered.
+Once the full set of activation have been computed and stored in GPU memory, the backpropagation of the gradients through the reversible block can begin. 
+Because the flow of hidden activation reconstruction does not follow the flow of the gradient computations, 
+
+% Compute memory footprint.
+The peak memory consumption in the RevNet architecture happens in the backward pass through the last reversible block in which the memory cost of storing the full set of non-preserving layers input activations adds to the local memory cost of storing the hidden activations of the reversible block.
+
+The peak memory consumption is given by:
+
+\begin{subequations}
+	\begin{align}
+	M_{z} &= \times \sum_{i \in P} bs \times h \times w p_i \times c_i \times bpe \\
+	M_{z} &= bs \times h \times w \times \sum_{i \in P} p_i \times c_i \times bpe \\
+	M_{z}' &= M_{z} / (bs \times h \times w)  \\
+	M_{z}' &= \sum_{i \in P} p_i \times c_i \times bpe 
+	\end{align}
+\end{subequations}
+
+\subsection{iRevNet}
+
+% Explain the pooling
+The iRevNet model builds on the RevNet architecture: they replace the irreversible max-pooling operation with an invertible operation that reshapes the hidden activation states
+so as to compensate the loss of spatial resolution by an increase in the channel dimension. 
+This pooling operation fills in the roles of both th epooling layers (reducing spatial resolution) and the non-invertible convolutions (expanding the channel dimension). As such, the iRevNet architecture is fully invertible, which alleviates the global memory bottleneck of the RevNet architecture.
+
+This pooling operation works by stacking the neighboring elements of the pooling regions along the channel dimension, 
+i.e.; for a 2D pooling operation with $2 \times 2$ pooling window, the number of output channels is four times the number of input channels. 
+Unfortunately, the size of a volume-preserving convolution kernel grows quadratically in the number of input channels:
+
+\begin{subequations}
+	\begin{align}
+	M(\theta) &= c_{in} \times c_{out} \times k_h \times k_w \\
+	M(\theta) &= c^2 \times k_h \times k_w
+	\end{align}
+\end{subequations}
+
+Consider an iRevNet network with initial channel size 32.
+After three levels of $2 \times 2$ pooling, the effective channel size becomes $32 \times 4^3=2048$. A typical $3 \times 3$ convolution layer kernel for higher layers of such network would have $n(\theta)=2048 \times 3 \times 3 \times 2048=37M$ parameters.
+At this point, the memory cost of the network weights $M_{\theta}$ may outweight the activation memory cost and becomes a new bottleneck.
+However, these pooling layers introduces a new memory bottleneck through the weight memory cost.
+
+Furthermore, the iRevNet architecture does not address the local memory bottleneck of the reversible blocks. 
+In the next section, we introduce both layer-wise reversibility and a variant on this pooling operations to address the local memory bottleneck of reversible blocks and the weight memory bottleneck respectively.
+
+\section{Method}
+
+RevNet and iRevNet architectures implement reversible transformations at the level of residual blocks. 
+As we have seen in the previous section, the design of these reversible blocks create a local memory bottleneck as all hidden activations within a reversible block need to be computed before the gradients are backpropagated through the block. 
+In order to circumvent this local bottleneck, we propose to layer-wise invertible operations. 
+However, these invertible operations introduce numerical error, which we characterize in the following subsection. 
+In Section XXX, we will show that these numerical errors lead to instabilitites that hurt model accuracy. 
+Hence, in section XXX, we propose a hybrid model combining layer-wise and residual block-wise reversible operations to stabilize training while resolving the local memory bottleneck at the cost of a small additional computational cost.
+
+\subsection{Layer-wise Invertibility}
+
+In this section, we present invertible layers that act as drop-in replacement for convolution, batch normalization, pooling and non-linearity layers. We then characterize the numerical instabilities arising from the invertible batch normalization and non-linearities.
+
+\subsubsection{Invertible batch normalization}
+
+As batch normalization is not a bijective operation, it does not a have an analytical inverse.
+However, the inverse reconstruction of a batch normalization layer can be realized with minimal memory cost.
+Given first and second order moment parameters $\beta$ and $\gamma$, the forward $f$ and inverse $f^-1$operation of an invertible batch normalization layer can be computed as follows:
+
+\begin{subequations}
+	\begin{align}
+	y = f(x) &= \gamma \times \frac{x - \hat{x}}{\sqrt{\dot{x}} + \epsilon} + \beta \\
+	x = f^{-1}(y) &= (\sqrt{\dot{x}} + \epsilon) \times \frac{y -  \beta}{\gamma}  + \hat{x}
+	\end{align}
+\end{subequations}
+
+Where $\hat{x}$ and $\dot{x}$ represent the mean and standard deviation of $x$ respectively.
+Hence, the input activation $x$ cand be recovered from $y$ through $f^{-1}$ at the minimal emory cost of storing the input activation statistics $\hat{x}$ and $\dot{x}$.
+
+Let us consider the accumulation of numerical errors arising from the inverse computation of an invertible batch normalization layer.
+During the backward pass, the invertible batch norm layer is supposed to compute its input $x=f^{-1}(y)$ from the ouput $y$. 
+In reality, however, the output propagated back to the layer by upstream invertible layers is a noisy estimate $\hat{y}=y+\epsilon_y$ of the true output due to the numerical errors introduced by upstream layers. 
+Let us define the signal to noise ratio (SNR) of the input and output signal as follows:
+
+\begin{subequations}
+	\begin{align}
+	snr_o = \frac{|y|^2}{|\epsilon_y|^2} \\
+	snr_i = \frac{|x|^2}{|\epsilon_x|^2}  
+	\end{align}
+\end{subequations}
+
+We are interested in characterizing the factor of reduction $\alpha$ of the SNR through the inverse reconstruction:
+
+\begin{equation}
+	\alpha = \frac{snr_i}{snr_o}
+\end{equation}
+
+To illustrate the mechanism through which the batch normalization inverse operation reduces the SNR, let us consider a toy layer with only two channels and parameters $\beta=[0,0]$ and $\gamma = [1, \rho]$. For simplicity, let us consider an input signal $x$ independantly and indentically distributed across both channels with zero mean and standard deviation 1 so that, in the forward pass, we have:
+
+\begin{subequations}
+\begin{align}
+   y       =& [y_0, y_1] 					                   										 \\
+   y       =& [x_0, x_1 \times \rho] 															 \\
+   |y|^2 =& \frac{1}{2} \times |x|^2 + \frac{1}{2} \times |x|^2 \times \rho^2 \\
+   |y|^2 =&|x|^2  \times \frac{1+\rho^2}{2}
+\end{align}
+\end{subequations}
+
+During the backward pass, the noisy estimate $\hat{y}=y+\epsilon_y$ is fed back as input to the inverse operation. Similarly, let us suppose a noise $\epsilon_y$ indentically distributed across both channels so that we have:
+
+\begin{subequations}
+\begin{align}
+\hat{y}           =& [ x_0 + \epsilon_{y0}, x_1 \times \rho + \epsilon_{y1} ] \\
+\hat{x}           =& [ \hat{y}, \hat{y} / \rho] \\
+\hat{x}           =& [ x_0 + \epsilon_{y0}, x_1 + \epsilon_{y1} \times \rho ]\\
+\epsilon_x      =& \hat{x} - x\\
+\epsilon_x      =& [ \epsilon_{y0}, \epsilon_{y1} \times \rho ]\\
+|\epsilon_x|^2 =& [ \epsilon_{y0}|, \epsilon_{y1} \times \rho ]
+\end{align}
+\end{subequations}
+
+Using, the above, the signal to noise ration reduction factor $\alpha$ can be expressed as:
+
+\begin{subequations}
+	\begin{align}
+	\alpha =& \frac{snr_i}{snr_o} \\
+	\alpha =& \frac{|x|^2}{|\epsilon_x|^2} \times  \frac{|\epsilon_y|^2}{|y|^2} \\
+    \alpha =& \frac{1}{\frac{1}{\rho^2}\times (1 \times \rho^2}
+	\end{align}
+\end{subequations}
+
+In essence, numerical instabilities in the inverse computation of the batch normalization layer arise from the fact that the signal accross different channels $i$ and $j$ are amplified by different factors $\gamma_i$ and $\gamma_j$. While the signal amplification in the forward and inverse path cancel out each other ($x=f^{-1}(f(x))$), the noise only gets amplified in the backward pass.
+
+In the above demonstration, we used a toy parameterization of the invertible batch normalization layer to ease the explanation. 
+For arbitrarily parameterized batch normalization layers, this formula becomes:
+
+\begin{equation}
+ok
+\end{equation}
+
+The full proof of this formula is given in the appendix and follows the same reasoning as for the toy parametrization. The only assumption made by this proof is that both the input $x$ and output noise $\epsilon_y$ are identically distributed across all channels, which we found to hold true in practice. Figure 1 compares the theoretical and empirically observed  $\alpha$ ratio for randomly parameterized layers given random Gaussian input activation and output noise, and shows a perfect match.
+
+The more relative difference exists in channel parameters $\gamma$, the worse the signal to noise ratio gets degraded by the inverse formulation.
+We propose the following modification, introducing the hyperparameter $\epsilon_i$  to the invertible batch normalization layer:
+
+\begin{subequations}
+	\begin{align}
+	y = f(x) &= |\gamma + \epsilon_i| \times \frac{x - \hat{x}}{\sqrt{\dot{x}} + \epsilon} + \beta \\
+	x = f^{-1}(y) &= (\sqrt{\dot{x}} + \epsilon) \times \frac{y -  \beta}{|\gamma + \epsilon_i|}  + \hat{x}
+	\end{align}
+\end{subequations}
+
+The introduction of the $\epsilon_i|$ hyper parameter serves two purposes: 
+First, it stabilizes the numerical errors described above by lower bounding the smallest $\gamma$ parameters. 
+Second, it prevents numerical instabilities that would otherwise arise from the inverse computation as $\gamma$ parameters tend towards zero. 
+
+\subsubsection{Invertible activation function}
+
+A good invertible activation function must be bijective (to guarantee the existence of an inverse function) and non-saturating (for numerical stability).
+For these properties, we focus our attention on Leaky ReLUs whose forward $f$ and inverse $f^{-1}$ computations are defined for a negative slope parameter $n$, as follow:
+
+\begin{subequations}
+	\begin{align}
+	y = f(x) &=      \begin{cases}
+	x, & \text{if}\ x>0 \\
+	x / n, & \text{otherwise}
+	\end{cases} \\
+	x = f^{-1}(y) &= \begin{cases}
+	     y, & \text{if}\ y>0 \\
+	     y \times n, & \text{otherwise}
+	\end{cases} 
+	\end{align}
+\end{subequations}
+
+The analysis of the numerical errors yielded by the invertible Leaky ReLU follows a similar reasoning as the toy batch normalization example with a few additional subtelties:
+Similar to the toy batch normalization example, we can think of the leaky ReLU as artificially splitting the input x across two different channels, one channel leaving the output unchanged and one channel multiplying the input by a factor $1/n$ during the forward pass and multiplying the output by a channel $n$ during the inverse pass.
+
+However, these artificial channels are defined by the sign of the output and input respectively.
+Hence, we need to consider the cases in which the noise flips the sign of the output activations. Hence, we need to consider the behaviour of the invertible Leaky ReLU across four cases: 
+
+\begin{subequations}
+\begin{align}
+y = \begin{cases}
+y_{nn} \  \text{if}\  \hat{y}<0  &\text{and}\  y<0     \\
+y_{np} \ \text{if}\  \hat{y}>=0  &\text{and}\  y<0    \\
+y_{pp} \  \text{if}\  \hat{y}>=0  &\text{and}\  y>=0 \\
+y_{pn} \ \text{if}\  \hat{y}<0     &\text{and}\  y>=1 
+\end{cases} 
+\end{align}
+\end{subequations}
+
+Where the index $np$, for instance, represents negative activations whose reconstructions have become positive due to the added noise. 
+The signal to noise ratio of the input and outputs can be expressed respectively as:
+
+In the case where $y >> \epsilon_y$, the effects of sign are negligible, yielding a formula similar to our toy batch normalization examples:
+
+In this regime, numerical errors can be controlled by setting a negative slope $n$ closer to 1
+As $n$ tends towards $1$, however, the network tends toward a linear behaviour. In Section XXX, we investigate the impact of the negative slope parameter on the model accuracy.
+
+When the noise reaches an amplitude similar or greater than the activation signal, the effects of sign flips complicate the equation. However, in this regime, the signal to noise ratio becomes too low for training as numerical errors prevent any useful weight update.
+We characterize this regime in the appendix, and derive the $alpha$ formula for uniform noise and input distributions.
+
+\subsubsection{Invertible convolutions}
+
+Invertible convolution layers could be defined in different ways.
+For instance, convolution layers can be made invertible by constraining their kernel and the inverse of such operation is often referred to as deconvolution. 
+However, computing the inverse of a convolution can be computationally expensive and is  prawn to numerical errors.
+
+Instead, we choose to implement invertible convolutions using the reversible block design for its simplicity, numerical stability and computational efficiency.
+Hence, an invertible convolution in our architecture refers to a minimal reversible block in which module $F$ and $G$ consist of a single convolution respectively.
+
+XXX \etal found no accumulation of numerical errors in stacking reversible blocks. Similarly, we found reversible blocks extremely stable yielding negligible numerical errors compared to the invertible batch normalization and Leaky ReLU layers.
+
+\subsubsection{Pooling}
+
+In XXX \etal, the authors propose XXX an inversible pooling by stacking the neighboring elements of the pooling regions along the channel dimension, i.e.; for a 2D pooling operation with $2 \times 2$ pooling window, the number of output channels is four times the number of input channels. Unfortunately, the size of a volume-preserving convolution kernel grows quadratically in the number of input channels:
+
+\begin{subequations}
+\begin{align}
+M(\theta) &= c_{in} \times c_{out} \times k_h \times k_w \\
+M(\theta) &= c^2 \times k_h \times k_w
+\end{align}
+\end{subequations}
+
+Consider an iRevNet network with initial channel size 32.
+After three levels of $2 \times 2$ pooling, the effective channel size becomes $32 \times 4^3=2048$. A typical $3 \times 3$ convolution layer kernel for higher layers of such network would have $n(\theta)=2048 \times 3 \times 3 \times 2048=37M$ parameters.
+At this point, the memory cost of the network weights $M_{\theta}$ may outweight the activation memory cost and becomes a new bottleneck.
+
+To circumvent this quadratic increase in the memory cost of the weight, we propose a new pooling layer that stacks the elements of neighboring pooling regions along the batch size instead of the channel size. We refer to both kind of pooling as channel pooling $\mathcal{P}_c$ and batch pooling $\mathcal{P}_b$ respectively, depending on the dimension along which activation features are stacked.
+Given a $2 \times 2$ pooling region and an input activation tensor $x$ of dimensions $bs \times c \times h \times w$, where $bs$ refers to the batch size, $c$ to the number of channels and $h \times w$ to the spatial resolution, the reshaping operation performed by both pooling layers can be formalized as follows:
+
+\begin{subequations}
+\begin{align}
+	\mathcal{P}_c :& x \rightarrow y \\
+	\mathcal{P}_c :& \mathbb{R}^{bs \times c \times h \times w}  \rightarrow \mathbb{R}^{bs \times 4c \times \frac{h}{2} \times \frac{w}{2}}\\
+	\mathcal{P}_b :& x \rightarrow y \\
+    \mathcal{P}_b :&  \mathbb{R}^{bs \times c \times h \times w}  \rightarrow \mathbb{R}^{4bs \times c \times \frac{h}{2} \times \frac{w}{2}}
+\end{align}
+\end{subequations}
+
+Batch pooling gives us a way to perform volume-preserving pooling operations without the cost of a quadratic increase in the kernel weights of subsequent layer. 
+By alterning between channel and batch pooling, we can control the number of channels at each pooling level of the model's architecture.
+
+\subsection{Hybrid architecture}
+
+In section XXX, we saw that layer-wise activation and normalization layers degrade the signal to noise ratio of the reconstructed activations.
+In the Section XXX, we will quantify the accumulation of numerical errors through long chains of layer-wise invertible operations and show that they lead to numerical instabilities that impact the model accuracy.
+
+To prevent these numerical instabilities, we introduce an hybrid architecture that leverages both residual block-level and layer-wise invertible modules.
+This hybrid architecture, illustrated in Figure XXX, combines residual reversible blocks with layer-wise invertible functions. 
+Conceptually, the role of the residual level reversible block is to reconstruct the input activation of residual blocks with minimal errors, while the role of the layer-wise invertible layers is to efficiently recompute the hidden activations within the reversible residual blocks at the same time as the gradient propagates to circumvent the local memory bottleneck of the reversible module.
+
+In more detail, the backward pass through a reversible block of this architecture proceeds as follows: 
+First, given the reversible block output $y_1$ and $y_2$, we recompute the input $x_1$ and $x_2$ using the analytical inverse of the reversible block, without storing the intermediate activation values of the F and G module.
+Second, we backpropagate the gradient of the activations through module $G$ and $F$, reconstructing the hidden activation values on-the-fly using the layer-wise inverse operation.
+
+The analytical inverse of the residual level reversible blocks allows us to propagate hidden activations with minimal reconstruction error to the ower modules, while layer-wise inversion allows us to alleviate the local bottleneck of the reversible block by computing the hidden activation values on the fly. Layer-wise inverse are only used for hidden feature computations within the scope of the reversible block so that numerical errors do not accumulate up to a damaging degree as reversible blocks are made of relatively short chains of operations.
+
+\section{Experiments and results}
+
+\subsection{Impact of Numerical stability}
+
+In this section, we quantify the accumulation of numerical errors in layer-wise invertible architectures and analyse their impact on the accuracy.
+We start by evaluating a small layer-wise invertible LeNet-like architecture on the MNIST dataset.
+We show the impact of the hyperparameters on the numerical errors and investigate the impact of numerical errors on the accuracy.
+
+We then investigate a larger layer-wise invertible vgg-like model on the CIFAR10 dataset and show that the accumulation of numerical errors prevent from converging.
+We demonstrate that our hybrid model, resnet-like model stabilize training.
+
+\subsubsection{MNIST experiments}
+
+Figure XXX shows the architecture.
+Figure XXX shows the SNR at the input of each layer for different values of negative slopes.
+
+To isolate the impact of numerical errorrs, we use the same architecture with and without reconstructions.
+The difference in accuracy between both versions show the impact of numerical errors.
+Figure XXX compares the accuracy of several architecture on MNIST.
+
+\subsubsection{CIFAR experiments}
+
+Figure XXX shows the architecture.
+
+Figure XXX shows the SNR.
+
+Figure XXX shows the ResNet-like architecture.
+
+\subsection{Model comparison}
+
+Feature table showing number of params, FLOPS, Memory and accuracy
+
+
+
+\section{Conclusion}
+
+
+
+\section*{Abreviation}
+
+CNN: Convolutional Neural Network  \\
+
+\begin{backmatter}
+\section*{Availability of data and material}
+All the code and data used in this work are publicly available at XXX
+
+\section*{Competing interests}
+The authors declare that they have no competing interests.
+
+\section*{Author's contributions}
+T.H and Q.F equally contributed to the investigation and implementation presented in this work. T.T and Y.A jointly supervised this project.
+
+\section*{Funding}
+This work was supported by a scholarship MEXT from the Japanese Ministry of Education, Culture, Sports, Science, and Technology. 
+A part of this study is subsidized by JSPS Grant-in-Aid for Scientific Research and Research granted JP 17K00236. 
+This work was supported in part by PRESTO, JST (Grant No. JPMJPR15D2).
+
+\section*{Acknowledgements}
+At the time of this writing, the only contributors to the content of this work are the authors. We would be happy to thank reviewers for useful feedbacks.
+
+\bibliographystyle{bmc-mathphys}
+\bibliography{bmc_article}
+
+\section*{FIGURE LEGEND}
+
+%\begin{figure}[t]
+%\textbf{XXX}
+%\includegraphics{Figure1.png}
+%\caption{XXX}
+%\end{figure}
+
+\end{backmatter}
+\end{document}
