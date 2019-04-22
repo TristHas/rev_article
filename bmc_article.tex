@@ -579,50 +579,52 @@ In reality, however, the output propagated back to the layer by upstream inverti
 Let us define the signal to noise ratio (SNR) of the input and output signal as follows:
 
 \begin{subequations}
-	\begin{align}
-	snr_o = \frac{|y|^2}{|\epsilon_y|^2} \\
-	snr_i = \frac{|x|^2}{|\epsilon_x|^2}  
-	\end{align}
+\begin{align}
+snr_o = \frac{|y|^2}{|\epsilon_y|^2} \\
+snr_i = \frac{|x|^2}{|\epsilon_x|^2}  
+\end{align}
 \end{subequations}
 
 We are interested in characterizing the factor of reduction $\alpha$ of the SNR through the inverse reconstruction:
 
 \begin{equation}
-	\alpha = \frac{snr_i}{snr_o}
+\alpha = \frac{snr_i}{snr_o}
 \end{equation}
 
 To illustrate the mechanism through which the batch normalization inverse operation reduces the SNR, let us consider a toy layer with only two channels and parameters $\beta=[0,0]$ and $\gamma = [1, \rho]$. For simplicity, let us consider an input signal $x$ independantly and indentically distributed across both channels with zero mean and standard deviation 1 so that, in the forward pass, we have:
 
 \begin{subequations}
 \begin{align}
-   y       =& [y_0, y_1] 					                   										 \\
-   y       =& [x_0, x_1 \times \rho] 															 \\
-   |y|^2 =& \frac{1}{2} \times |x|^2 + \frac{1}{2} \times |x|^2 \times \rho^2 \\
-   |y|^2 =&|x|^2  \times \frac{1+\rho^2}{2}
+ y =& [y_0, y_1] \\
+ y =& [x_0, x_1 \times \rho] \\
+ |y|^2 =& \frac{1}{2} \times |x|^2 + \frac{1}{2} \times |x|^2 \times \rho^2 \\
+ |y|^2 =&\frac{|x|^2}{2} \times (1+\rho^2)
 \end{align}
 \end{subequations}
 
-During the backward pass, the noisy estimate $\hat{y}=y+\epsilon_y$ is fed back as input to the inverse operation. Similarly, let us suppose a noise $\epsilon_y$ indentically distributed across both channels so that we have:
+During the backward pass, the noisy estimate $\hat{y}=y+\epsilon_y$ is fed back as input to the inverse operation. 
+Similarly, let us suppose a noise $\epsilon_y$ indentically distributed across both channels so that we have:
 
 \begin{subequations}
 \begin{align}
-\hat{y}           =& [ x_0 + \epsilon_{y0}, x_1 \times \rho + \epsilon_{y1} ] \\
-\hat{x}           =& [ \hat{y}, \hat{y} / \rho] \\
-\hat{x}           =& [ x_0 + \epsilon_{y0}, x_1 + \epsilon_{y1} \times \rho ]\\
+\hat{y}         =& [ \hat{y}_0, \hat{y}_1 ] \\
+\hat{y}         =& [ x_0 + \epsilon_0^y, x_1 \times \rho + \epsilon_1^y ] \\
+\hat{x}         =& [ \hat{y}_0, \hat{y}_1 / \rho] \\
+\hat{x}         =& [ x_0 + \epsilon_{0}^y, x_1 + \frac{\epsilon_{1}^y}{\rho} ]\\
 \epsilon_x      =& \hat{x} - x\\
-\epsilon_x      =& [ \epsilon_{y0}, \epsilon_{y1} \times \rho ]\\
-|\epsilon_x|^2 =& [ \epsilon_{y0}|, \epsilon_{y1} \times \rho ]
+\epsilon_x      =& [ \epsilon_0^y, \frac{\epsilon_{1}^y}{\rho} ]\\
+|\epsilon_x|^2  =& \frac{|\epsilon^y|^2}{2} \times (1 + \frac{1}{\rho^2})
 \end{align}
 \end{subequations}
 
 Using the above formulation, the signal to noise ration reduction factor $\alpha$ can be expressed as:
 
 \begin{subequations}
-	\begin{align}
-	\alpha =& \frac{snr_i}{snr_o} \\
-	\alpha =& \frac{|x|^2}{|\epsilon_x|^2} \times  \frac{|\epsilon_y|^2}{|y|^2} \\
-    \alpha =& \frac{1}{\frac{1}{\rho^2}\times (1 \times \rho^2}
-	\end{align}
+\begin{align}
+\alpha =& \frac{snr_i}{snr_o} \\
+\alpha =& \frac{|x|^2}{|\epsilon_x|^2} \times  \frac{|\epsilon_y|^2}{|y|^2} \\
+\alpha =& \frac{4}{(1+\frac{1}{\rho^2}) \times (1 + \rho^2)}
+\end{align}
 \end{subequations}
 
 In essence, numerical instabilities in the inverse computation of the batch normalization layer arise from the fact that the signal accross different channels $i$ and $j$ are amplified by different factors $\gamma_i$ and $\gamma_j$. While the signal amplification in the forward and inverse path cancel out each other ($x=f^{-1}(f(x))$), the noise only gets amplified in the backward pass.
@@ -631,7 +633,7 @@ In the above demonstration, we used a toy parameterization of the invertible bat
 For arbitrarily parameterized batch normalization layers, this formula becomes:
 
 \begin{equation}
-ok
+\alpha = \frac{c^2}{(\sum_{c} \gamma_i^2) \times (\sum_{c} \frac{1}{\gamma_i^2})}
 \end{equation}
 
 The full proof of this formula is given in the appendix and follows the same reasoning as for the toy parametrization. The only assumption made by this proof is that both the input $x$ and output noise $\epsilon_y$ are identically distributed across all channels, which we found to hold true in practice. Figure 1 compares the theoretical and empirically observed  $\alpha$ ratio for randomly parameterized layers given random Gaussian input activation and output noise, and shows a perfect match.
@@ -640,10 +642,10 @@ The more relative difference exists in channel parameters $\gamma$, the worse th
 We propose the following modification, introducing the hyperparameter $\epsilon_i$  to the invertible batch normalization layer:
 
 \begin{subequations}
-	\begin{align}
-	y = f(x) &= |\gamma + \epsilon_i| \times \frac{x - \hat{x}}{\sqrt{\dot{x}} + \epsilon} + \beta \\
-	x = f^{-1}(y) &= (\sqrt{\dot{x}} + \epsilon) \times \frac{y -  \beta}{|\gamma + \epsilon_i|}  + \hat{x}
-	\end{align}
+\begin{align}
+y = f(x) &= |\gamma + \epsilon_i| \times \frac{x - \hat{x}}{\sqrt{\dot{x}} + \epsilon} + \beta \\
+x = f^{-1}(y) &= (\sqrt{\dot{x}} + \epsilon) \times \frac{y -  \beta}{|\gamma + \epsilon_i|}  + \hat{x}
+\end{align}
 \end{subequations}
 
 The introduction of the $\epsilon_i$ hyper parameter serves two purposes: 
@@ -656,16 +658,16 @@ A good invertible activation function must be bijective (to guarantee the existe
 For these properties, we focus our attention on Leaky ReLUs whose forward $f$ and inverse $f^{-1}$ computations are defined for a negative slope parameter $n$, as follow:
 
 \begin{subequations}
-	\begin{align}
-	y = f(x) &=      \begin{cases}
-	x, & \text{if}\ x>0 \\
-	x / n, & \text{otherwise}
-	\end{cases} \\
-	x = f^{-1}(y) &= \begin{cases}
-	     y, & \text{if}\ y>0 \\
-	     y \times n, & \text{otherwise}
-	\end{cases} 
-	\end{align}
+\begin{align}
+y = f(x) &=      \begin{cases}
+x, & \text{if}\ x>0 \\
+x / n, & \text{otherwise}
+\end{cases} \\
+x = f^{-1}(y) &= \begin{cases}
+y, & \text{if}\ y>0 \\
+y \times n, & \text{otherwise}
+\end{cases} 
+\end{align}
 \end{subequations}
 
 The analysis of the numerical errors yielded by the invertible Leaky ReLU follows a similar reasoning as the toy batch normalization example with a few additional subtelties:
@@ -690,6 +692,13 @@ Where the index $np$, for instance, represents negative activations whose recons
 The signal to noise ratio of the input and outputs can be expressed respectively as:
 
 In the case where $y >> \epsilon_y$, the effects of sign are negligible, yielding a formula similar to our toy batch normalization examples:
+
+\begin{subequations}
+\begin{align}
+\alpha =& \frac{snr_i}{snr_o} \\
+\alpha =& \frac{4}{(1+\frac{1}{n^2}) \times (1 + n^2)}
+\end{align}
+\end{subequations}
 
 In this regime, numerical errors can be controlled by setting a negative slope $n$ closer to 1
 As $n$ tends towards $1$, however, the network tends toward a linear behaviour. In Section XXX, we investigate the impact of the negative slope parameter on the model accuracy.
@@ -744,7 +753,17 @@ By alterning between channel and batch pooling, we can control the number of cha
 
 \subsubsection{Layer-wise invertible architecture}
 
-XXX
+Putting together the abovebuilding blocks, Figure XXX illustrates a layer-wise invertible architecture.
+The peak memory usage for an interation of tainingthis architecture can be computed as follows:
+
+\begin{subequations}
+\begin{align}
+\mathcal{M} &= M_{\theta} + M_{z} + M_{g} \\
+\mathcal{M} &= XXX
+\end{align}
+\end{subequations}
+
+For an input channel size of 32, training an iteration over batch of 512 images of resolution $32 \times 32$ would requires $\mathcal{M}=XXX$GB of VRAM. 
 
 \subsection{Hybrid architecture}
 
@@ -760,6 +779,8 @@ First, given the reversible block output $y_1$ and $y_2$, we recompute the input
 Second, we backpropagate the gradient of the activations through module $G$ and $F$, reconstructing the hidden activation values on-the-fly using the layer-wise inverse operation.
 
 The analytical inverse of the residual level reversible blocks allows us to propagate hidden activations with minimal reconstruction error to the ower modules, while layer-wise inversion allows us to alleviate the local bottleneck of the reversible block by computing the hidden activation values on the fly. Layer-wise inverse are only used for hidden feature computations within the scope of the reversible block so that numerical errors do not accumulate up to a damaging degree as reversible blocks are made of relatively short chains of operations.
+
+Figure XXX 
 
 \section{Experiments and results}
 
