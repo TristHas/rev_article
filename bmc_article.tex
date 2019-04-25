@@ -947,7 +947,7 @@ both a small degradation in computational complexity and accuracy.
 The computational complexity, however, remains reasonable. 
 In Table 2, we compare the time of training our proposed architecture to 94\% on a high-end Nvidia GTX 1080Ti and a low-end
 Nvidia GTX750.
-The GTX750 only has 1GB of VRAM, which results in roughly 500MB after initialization of various frameworks.
+The GTX750 only has 1GB of VRAM, which results in roughly 500MB of available memory after the initialization of various frameworks.
 Training a vanilla ResNet on such limited memory resources is impossible, while our architecture allows for efficient training. 
 
 \begin{table}[t]
@@ -964,12 +964,13 @@ Training a vanilla ResNet on such limited memory resources is impossible, while 
 
 \section{Conclusion}
 
-CNNs are awesome.
-Resource optimization of CNN can have great practical impacts given their ubiquity.
-In this paper, we have analyzed revertible network designs for the optimizaton of the memory cost of training large CNNs.
-We have highlighted the memory errors arising in long chains of invertible operations and proposed a way to minimize the impact of these errors.
-We propose an architecture with minimal training memory cost and demonstrate the efficiency 
-of our approach by training a model to 94\% accuracy on the CIFAR10 dataset within XXX of memory in XXX on a low-end Nvidia GTX 750.
+Convolutional Neural Networks form the backbone of modern computer vision systems.
+However, the accuracy of these models come at the cost of resource intensive training and inference procedures.
+While tremendous effort have been put into the optimization of the inference step on resource-limited device, 
+relatively little work have focused on algorithmic solutions for limited resource training. 
+In this paper, we have presented an architecture able to yield high accuracy classifications within very tight memory constraints.
+We highlighted several potential applications of memory-efficient training procedures, such as on-device training,
+and illustrated the efficiency of our approach by training a CNN to 94\% accuracy on a low-end GPU within only XXX of memory.
 
 \section*{Abreviation}
 
@@ -1082,15 +1083,14 @@ Emrpirical values were computed for a Gaussian input signal with zero mean and s
 \begin{figure}[t]
 \includegraphics{Figure8.png}
 \caption{
-Illustration of our proposed layer-wise invertible architecture and its memory consumption. 
-XXX
+Illustration of a layer-wise invertible architecture and its memory consumption. 
 }
 \end{figure}
 
 \begin{figure}[t]
 \includegraphics{Figure9.png}
 \caption{
-Illustration of our proposed hybrid architecture and its memory consumption. 
+Illustration of a hybrid architecture and its memory consumption. 
 XXX
 }
 \end{figure}
