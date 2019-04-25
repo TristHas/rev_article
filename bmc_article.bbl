@@ -1,0 +1,651 @@
+%% BioMed_Central_Bib_Style_v1.01
+
+\begin{thebibliography}{22}
+% BibTex style file: bmc-mathphys.bst (version 2.1), 2014-07-24
+\ifx \bisbn   \undefined \def \bisbn  #1{ISBN #1}\fi
+\ifx \binits  \undefined \def \binits#1{#1}\fi
+\ifx \bauthor  \undefined \def \bauthor#1{#1}\fi
+\ifx \batitle  \undefined \def \batitle#1{#1}\fi
+\ifx \bjtitle  \undefined \def \bjtitle#1{#1}\fi
+\ifx \bvolume  \undefined \def \bvolume#1{\textbf{#1}}\fi
+\ifx \byear  \undefined \def \byear#1{#1}\fi
+\ifx \bissue  \undefined \def \bissue#1{#1}\fi
+\ifx \bfpage  \undefined \def \bfpage#1{#1}\fi
+\ifx \blpage  \undefined \def \blpage #1{#1}\fi
+\ifx \burl  \undefined \def \burl#1{\textsf{#1}}\fi
+\ifx \doiurl  \undefined \def \doiurl#1{\textsf{#1}}\fi
+\ifx \betal  \undefined \def \betal{\textit{et al.}}\fi
+\ifx \binstitute  \undefined \def \binstitute#1{#1}\fi
+\ifx \binstitutionaled  \undefined \def \binstitutionaled#1{#1}\fi
+\ifx \bctitle  \undefined \def \bctitle#1{#1}\fi
+\ifx \beditor  \undefined \def \beditor#1{#1}\fi
+\ifx \bpublisher  \undefined \def \bpublisher#1{#1}\fi
+\ifx \bbtitle  \undefined \def \bbtitle#1{#1}\fi
+\ifx \bedition  \undefined \def \bedition#1{#1}\fi
+\ifx \bseriesno  \undefined \def \bseriesno#1{#1}\fi
+\ifx \blocation  \undefined \def \blocation#1{#1}\fi
+\ifx \bsertitle  \undefined \def \bsertitle#1{#1}\fi
+\ifx \bsnm \undefined \def \bsnm#1{#1}\fi
+\ifx \bsuffix \undefined \def \bsuffix#1{#1}\fi
+\ifx \bparticle \undefined \def \bparticle#1{#1}\fi
+\ifx \barticle \undefined \def \barticle#1{#1}\fi
+\ifx \bconfdate \undefined \def \bconfdate #1{#1}\fi
+\ifx \botherref \undefined \def \botherref #1{#1}\fi
+\ifx \url \undefined \def \url#1{\textsf{#1}}\fi
+\ifx \bchapter \undefined \def \bchapter#1{#1}\fi
+\ifx \bbook \undefined \def \bbook#1{#1}\fi
+\ifx \bcomment \undefined \def \bcomment#1{#1}\fi
+\ifx \oauthor \undefined \def \oauthor#1{#1}\fi
+\ifx \citeauthoryear \undefined \def \citeauthoryear#1{#1}\fi
+\ifx \endbibitem  \undefined \def \endbibitem {}\fi
+\ifx \bconflocation  \undefined \def \bconflocation#1{#1}\fi
+\ifx \arxivurl  \undefined \def \arxivurl#1{\textsf{#1}}\fi
+\csname PreBibitemsHook\endcsname
+
+%%% 1
+\bibitem{jacob2018quantization}
+\begin{bchapter}
+\bauthor{\bsnm{Jacob}, \binits{B.}},
+\bauthor{\bsnm{Kligys}, \binits{S.}},
+\bauthor{\bsnm{Chen}, \binits{B.}},
+\bauthor{\bsnm{Zhu}, \binits{M.}},
+\bauthor{\bsnm{Tang}, \binits{M.}},
+\bauthor{\bsnm{Howard}, \binits{A.}},
+\bauthor{\bsnm{Adam}, \binits{H.}},
+\bauthor{\bsnm{Kalenichenko}, \binits{D.}}:
+\bctitle{Quantization and training of neural networks for efficient
+  integer-arithmetic-only inference}.
+In: \bbtitle{Proceedings of the IEEE Conference on Computer Vision and Pattern
+  Recognition},
+pp. \bfpage{2704}--\blpage{2713}
+(\byear{2018})
+\end{bchapter}
+\endbibitem
+
+%%% 2
+\bibitem{molchanov2016pruning}
+\begin{botherref}
+\oauthor{\bsnm{Molchanov}, \binits{P.}},
+\oauthor{\bsnm{Tyree}, \binits{S.}},
+\oauthor{\bsnm{Karras}, \binits{T.}},
+\oauthor{\bsnm{Aila}, \binits{T.}},
+\oauthor{\bsnm{Kautz}, \binits{J.}}:
+Pruning convolutional neural networks for resource efficient inference.
+arXiv preprint arXiv:1611.06440
+(2016)
+\end{botherref}
+\endbibitem
+
+%%% 3
+\bibitem{kingma2014adam}
+\begin{botherref}
+\oauthor{\bsnm{Kingma}, \binits{D.P.}},
+\oauthor{\bsnm{Ba}, \binits{J.}}:
+Adam: A method for stochastic optimization.
+arXiv preprint arXiv:1412.6980
+(2014)
+\end{botherref}
+\endbibitem
+
+%%% 4
+\bibitem{shallue2018measuring}
+\begin{botherref}
+\oauthor{\bsnm{Shallue}, \binits{C.J.}},
+\oauthor{\bsnm{Lee}, \binits{J.}},
+\oauthor{\bsnm{Antognini}, \binits{J.}},
+\oauthor{\bsnm{Sohl-Dickstein}, \binits{J.}},
+\oauthor{\bsnm{Frostig}, \binits{R.}},
+\oauthor{\bsnm{Dahl}, \binits{G.E.}}:
+Measuring the effects of data parallelism on neural network training.
+arXiv preprint arXiv:1811.03600
+(2018)
+\end{botherref}
+\endbibitem
+
+%%% 5
+\bibitem{largebatch}
+\begin{botherref}
+\oauthor{\bsnm{McCandlish}, \binits{S.}},
+\oauthor{\bsnm{Kaplan}, \binits{J.}},
+\oauthor{\bsnm{Amodei}, \binits{D.}},
+\oauthor{\bsnm{Dota~Team}, \binits{O.}}:
+An empirical model of large-batch training.
+arXiv preprint arXiv:1812.06162
+(2018)
+\end{botherref}
+\endbibitem
+
+%%% 6
+\bibitem{gomez2017reversible}
+\begin{bchapter}
+\bauthor{\bsnm{Gomez}, \binits{A.N.}},
+\bauthor{\bsnm{Ren}, \binits{M.}},
+\bauthor{\bsnm{Urtasun}, \binits{R.}},
+\bauthor{\bsnm{Grosse}, \binits{R.B.}}:
+\bctitle{The reversible residual network: Backpropagation without storing
+  activations}.
+In: \bbtitle{Advances in Neural Information Processing Systems},
+pp. \bfpage{2214}--\blpage{2224}
+(\byear{2017})
+\end{bchapter}
+\endbibitem
+
+%%% 7
+\bibitem{jacobsen2018revnet}
+\begin{botherref}
+\oauthor{\bsnm{Jacobsen}, \binits{J.-H.}},
+\oauthor{\bsnm{Smeulders}, \binits{A.}},
+\oauthor{\bsnm{Oyallon}, \binits{E.}}:
+i-revnet: Deep invertible networks.
+arXiv preprint arXiv:1802.07088
+(2018)
+\end{botherref}
+\endbibitem
+
+%%% 8
+\bibitem{dinh2014nice}
+\begin{botherref}
+\oauthor{\bsnm{Dinh}, \binits{L.}},
+\oauthor{\bsnm{Krueger}, \binits{D.}},
+\oauthor{\bsnm{Bengio}, \binits{Y.}}:
+Nice: Non-linear independent components estimation.
+arXiv preprint arXiv:1410.8516
+(2014)
+\end{botherref}
+\endbibitem
+
+%%% 9
+\bibitem{dinh2016density}
+\begin{botherref}
+\oauthor{\bsnm{Dinh}, \binits{L.}},
+\oauthor{\bsnm{Sohl-Dickstein}, \binits{J.}},
+\oauthor{\bsnm{Bengio}, \binits{S.}}:
+Density estimation using real nvp.
+arXiv preprint arXiv:1605.08803
+(2016)
+\end{botherref}
+\endbibitem
+
+%%% 10
+\bibitem{kingma2018glow}
+\begin{bchapter}
+\bauthor{\bsnm{Kingma}, \binits{D.P.}},
+\bauthor{\bsnm{Dhariwal}, \binits{P.}}:
+\bctitle{Glow: Generative flow with invertible 1x1 convolutions}.
+In: \bbtitle{Advances in Neural Information Processing Systems},
+pp. \bfpage{10215}--\blpage{10224}
+(\byear{2018})
+\end{bchapter}
+\endbibitem
+
+%%% 11
+\bibitem{rezende2015variational}
+\begin{botherref}
+\oauthor{\bsnm{Rezende}, \binits{D.J.}},
+\oauthor{\bsnm{Mohamed}, \binits{S.}}:
+Variational inference with normalizing flows.
+arXiv preprint arXiv:1505.05770
+(2015)
+\end{botherref}
+\endbibitem
+
+%%% 12
+\bibitem{chen2018neural}
+\begin{bchapter}
+\bauthor{\bsnm{Chen}, \binits{T.Q.}},
+\bauthor{\bsnm{Rubanova}, \binits{Y.}},
+\bauthor{\bsnm{Bettencourt}, \binits{J.}},
+\bauthor{\bsnm{Duvenaud}, \binits{D.K.}}:
+\bctitle{Neural ordinary differential equations}.
+In: \bbtitle{Advances in Neural Information Processing Systems},
+pp. \bfpage{6571}--\blpage{6583}
+(\byear{2018})
+\end{bchapter}
+\endbibitem
+
+%%% 13
+\bibitem{jacobsen2018excessive}
+\begin{botherref}
+\oauthor{\bsnm{Jacobsen}, \binits{J.-H.}},
+\oauthor{\bsnm{Behrmann}, \binits{J.}},
+\oauthor{\bsnm{Zemel}, \binits{R.}},
+\oauthor{\bsnm{Bethge}, \binits{M.}}:
+Excessive invariance causes adversarial vulnerability.
+arXiv preprint arXiv:1811.00401
+(2018)
+\end{botherref}
+\endbibitem
+
+%%% 14
+\bibitem{behrmann2018invertible}
+\begin{botherref}
+\oauthor{\bsnm{Behrmann}, \binits{J.}},
+\oauthor{\bsnm{Duvenaud}, \binits{D.}},
+\oauthor{\bsnm{Jacobsen}, \binits{J.-H.}}:
+Invertible residual networks.
+arXiv preprint arXiv:1811.00995
+(2018)
+\end{botherref}
+\endbibitem
+
+%%% 15
+\bibitem{rota2018place}
+\begin{bchapter}
+\bauthor{\bsnm{Rota~Bul{\`o}}, \binits{S.}},
+\bauthor{\bsnm{Porzi}, \binits{L.}},
+\bauthor{\bsnm{Kontschieder}, \binits{P.}}:
+\bctitle{In-place activated batchnorm for memory-optimized training of dnns}.
+In: \bbtitle{Proceedings of the IEEE Conference on Computer Vision and Pattern
+  Recognition},
+pp. \bfpage{5639}--\blpage{5647}
+(\byear{2018})
+\end{bchapter}
+\endbibitem
+
+%%% 16
+\bibitem{iandola2016squeezenet}
+\begin{botherref}
+\oauthor{\bsnm{Iandola}, \binits{F.N.}},
+\oauthor{\bsnm{Han}, \binits{S.}},
+\oauthor{\bsnm{Moskewicz}, \binits{M.W.}},
+\oauthor{\bsnm{Ashraf}, \binits{K.}},
+\oauthor{\bsnm{Dally}, \binits{W.J.}},
+\oauthor{\bsnm{Keutzer}, \binits{K.}}:
+Squeezenet: Alexnet-level accuracy with 50x fewer parameters and< 0.5 mb model
+  size.
+arXiv preprint arXiv:1602.07360
+(2016)
+\end{botherref}
+\endbibitem
+
+%%% 17
+\bibitem{howard2017mobilenets}
+\begin{botherref}
+\oauthor{\bsnm{Howard}, \binits{A.G.}},
+\oauthor{\bsnm{Zhu}, \binits{M.}},
+\oauthor{\bsnm{Chen}, \binits{B.}},
+\oauthor{\bsnm{Kalenichenko}, \binits{D.}},
+\oauthor{\bsnm{Wang}, \binits{W.}},
+\oauthor{\bsnm{Weyand}, \binits{T.}},
+\oauthor{\bsnm{Andreetto}, \binits{M.}},
+\oauthor{\bsnm{Adam}, \binits{H.}}:
+Mobilenets: Efficient convolutional neural networks for mobile vision
+  applications.
+arXiv preprint arXiv:1704.04861
+(2017)
+\end{botherref}
+\endbibitem
+
+%%% 18
+\bibitem{frankle2018lottery}
+\begin{botherref}
+\oauthor{\bsnm{Frankle}, \binits{J.}},
+\oauthor{\bsnm{Carbin}, \binits{M.}}:
+The lottery ticket hypothesis: Finding sparse, trainable neural networks.
+arXiv preprint arXiv:1803.03635
+(2018)
+\end{botherref}
+\endbibitem
+
+%%% 19
+\bibitem{micikevicius2017mixed}
+\begin{botherref}
+\oauthor{\bsnm{Micikevicius}, \binits{P.}},
+\oauthor{\bsnm{Narang}, \binits{S.}},
+\oauthor{\bsnm{Alben}, \binits{J.}},
+\oauthor{\bsnm{Diamos}, \binits{G.}},
+\oauthor{\bsnm{Elsen}, \binits{E.}},
+\oauthor{\bsnm{Garcia}, \binits{D.}},
+\oauthor{\bsnm{Ginsburg}, \binits{B.}},
+\oauthor{\bsnm{Houston}, \binits{M.}},
+\oauthor{\bsnm{Kuchaiev}, \binits{O.}},
+\oauthor{\bsnm{Venkatesh}, \binits{G.}}, et al.:
+Mixed precision training.
+arXiv preprint arXiv:1710.03740
+(2017)
+\end{botherref}
+\endbibitem
+
+%%% 20
+\bibitem{wu2018training}
+\begin{botherref}
+\oauthor{\bsnm{Wu}, \binits{S.}},
+\oauthor{\bsnm{Li}, \binits{G.}},
+\oauthor{\bsnm{Chen}, \binits{F.}},
+\oauthor{\bsnm{Shi}, \binits{L.}}:
+Training and inference with integers in deep neural networks.
+arXiv preprint arXiv:1802.04680
+(2018)
+\end{botherref}
+\endbibitem
+
+%%% 21
+\bibitem{martens2012training}
+\begin{bchapter}
+\bauthor{\bsnm{Martens}, \binits{J.}},
+\bauthor{\bsnm{Sutskever}, \binits{I.}}:
+\bctitle{Training deep and recurrent networks with hessian-free optimization}.
+In: \bbtitle{Neural Networks: Tricks of the Trade},
+pp. \bfpage{479}--\blpage{535}.
+\bpublisher{Springer}, \blocation{???}
+(\byear{2012})
+\end{bchapter}
+\endbibitem
+
+%%% 22
+\bibitem{chen2016training}
+\begin{botherref}
+\oauthor{\bsnm{Chen}, \binits{T.}},
+\oauthor{\bsnm{Xu}, \binits{B.}},
+\oauthor{\bsnm{Zhang}, \binits{C.}},
+\oauthor{\bsnm{Guestrin}, \binits{C.}}:
+Training deep nets with sublinear memory cost.
+arXiv preprint arXiv:1604.06174
+(2016)
+\end{botherref}
+\endbibitem
+
+\end{thebibliography}
+
+\newcommand{\BMCxmlcomment}[1]{}
+
+\BMCxmlcomment{
+
+<refgrp>
+
+<bibl id="B1">
+  <title><p>Quantization and training of neural networks for efficient
+  integer-arithmetic-only inference</p></title>
+  <aug>
+    <au><snm>Jacob</snm><fnm>B</fnm></au>
+    <au><snm>Kligys</snm><fnm>S</fnm></au>
+    <au><snm>Chen</snm><fnm>B</fnm></au>
+    <au><snm>Zhu</snm><fnm>M</fnm></au>
+    <au><snm>Tang</snm><fnm>M</fnm></au>
+    <au><snm>Howard</snm><fnm>A</fnm></au>
+    <au><snm>Adam</snm><fnm>H</fnm></au>
+    <au><snm>Kalenichenko</snm><fnm>D</fnm></au>
+  </aug>
+  <source>Proceedings of the IEEE Conference on Computer Vision and Pattern
+  Recognition</source>
+  <pubdate>2018</pubdate>
+  <fpage>2704</fpage>
+  <lpage>-2713</lpage>
+</bibl>
+
+<bibl id="B2">
+  <title><p>Pruning convolutional neural networks for resource efficient
+  inference</p></title>
+  <aug>
+    <au><snm>Molchanov</snm><fnm>P</fnm></au>
+    <au><snm>Tyree</snm><fnm>S</fnm></au>
+    <au><snm>Karras</snm><fnm>T</fnm></au>
+    <au><snm>Aila</snm><fnm>T</fnm></au>
+    <au><snm>Kautz</snm><fnm>J</fnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1611.06440</source>
+  <pubdate>2016</pubdate>
+</bibl>
+
+<bibl id="B3">
+  <title><p>Adam: A method for stochastic optimization</p></title>
+  <aug>
+    <au><snm>Kingma</snm><fnm>DP</fnm></au>
+    <au><snm>Ba</snm><fnm>J</fnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1412.6980</source>
+  <pubdate>2014</pubdate>
+</bibl>
+
+<bibl id="B4">
+  <title><p>Measuring the effects of data parallelism on neural network
+  training</p></title>
+  <aug>
+    <au><snm>Shallue</snm><fnm>CJ</fnm></au>
+    <au><snm>Lee</snm><fnm>J</fnm></au>
+    <au><snm>Antognini</snm><fnm>J</fnm></au>
+    <au><snm>Sohl Dickstein</snm><fnm>J</fnm></au>
+    <au><snm>Frostig</snm><fnm>R</fnm></au>
+    <au><snm>Dahl</snm><fnm>GE</fnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1811.03600</source>
+  <pubdate>2018</pubdate>
+</bibl>
+
+<bibl id="B5">
+  <title><p>An Empirical Model of Large-Batch Training</p></title>
+  <aug>
+    <au><snm>McCandlish</snm><fnm>S</fnm></au>
+    <au><snm>Kaplan</snm><fnm>J</fnm></au>
+    <au><snm>Amodei</snm><fnm>D</fnm></au>
+    <au><snm>Dota Team</snm><fnm>O</fnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1812.06162</source>
+  <pubdate>2018</pubdate>
+</bibl>
+
+<bibl id="B6">
+  <title><p>The reversible residual network: Backpropagation without storing
+  activations</p></title>
+  <aug>
+    <au><snm>Gomez</snm><fnm>AN</fnm></au>
+    <au><snm>Ren</snm><fnm>M</fnm></au>
+    <au><snm>Urtasun</snm><fnm>R</fnm></au>
+    <au><snm>Grosse</snm><fnm>RB</fnm></au>
+  </aug>
+  <source>Advances in Neural Information Processing Systems</source>
+  <pubdate>2017</pubdate>
+  <fpage>2214</fpage>
+  <lpage>-2224</lpage>
+</bibl>
+
+<bibl id="B7">
+  <title><p>i-revnet: Deep invertible networks</p></title>
+  <aug>
+    <au><snm>Jacobsen</snm><fnm>JH</fnm></au>
+    <au><snm>Smeulders</snm><fnm>A</fnm></au>
+    <au><snm>Oyallon</snm><fnm>E</fnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1802.07088</source>
+  <pubdate>2018</pubdate>
+</bibl>
+
+<bibl id="B8">
+  <title><p>Nice: Non-linear independent components estimation</p></title>
+  <aug>
+    <au><snm>Dinh</snm><fnm>L</fnm></au>
+    <au><snm>Krueger</snm><fnm>D</fnm></au>
+    <au><snm>Bengio</snm><fnm>Y</fnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1410.8516</source>
+  <pubdate>2014</pubdate>
+</bibl>
+
+<bibl id="B9">
+  <title><p>Density estimation using real nvp</p></title>
+  <aug>
+    <au><snm>Dinh</snm><fnm>L</fnm></au>
+    <au><snm>Sohl Dickstein</snm><fnm>J</fnm></au>
+    <au><snm>Bengio</snm><fnm>S</fnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1605.08803</source>
+  <pubdate>2016</pubdate>
+</bibl>
+
+<bibl id="B10">
+  <title><p>Glow: Generative flow with invertible 1x1 convolutions</p></title>
+  <aug>
+    <au><snm>Kingma</snm><fnm>DP</fnm></au>
+    <au><snm>Dhariwal</snm><fnm>P</fnm></au>
+  </aug>
+  <source>Advances in Neural Information Processing Systems</source>
+  <pubdate>2018</pubdate>
+  <fpage>10215</fpage>
+  <lpage>-10224</lpage>
+</bibl>
+
+<bibl id="B11">
+  <title><p>Variational inference with normalizing flows</p></title>
+  <aug>
+    <au><snm>Rezende</snm><fnm>DJ</fnm></au>
+    <au><snm>Mohamed</snm><fnm>S</fnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1505.05770</source>
+  <pubdate>2015</pubdate>
+</bibl>
+
+<bibl id="B12">
+  <title><p>Neural ordinary differential equations</p></title>
+  <aug>
+    <au><snm>Chen</snm><fnm>TQ</fnm></au>
+    <au><snm>Rubanova</snm><fnm>Y</fnm></au>
+    <au><snm>Bettencourt</snm><fnm>J</fnm></au>
+    <au><snm>Duvenaud</snm><fnm>DK</fnm></au>
+  </aug>
+  <source>Advances in Neural Information Processing Systems</source>
+  <pubdate>2018</pubdate>
+  <fpage>6571</fpage>
+  <lpage>-6583</lpage>
+</bibl>
+
+<bibl id="B13">
+  <title><p>Excessive Invariance Causes Adversarial Vulnerability</p></title>
+  <aug>
+    <au><snm>Jacobsen</snm><fnm>JH</fnm></au>
+    <au><snm>Behrmann</snm><fnm>J</fnm></au>
+    <au><snm>Zemel</snm><fnm>R</fnm></au>
+    <au><snm>Bethge</snm><fnm>M</fnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1811.00401</source>
+  <pubdate>2018</pubdate>
+</bibl>
+
+<bibl id="B14">
+  <title><p>Invertible residual networks</p></title>
+  <aug>
+    <au><snm>Behrmann</snm><fnm>J</fnm></au>
+    <au><snm>Duvenaud</snm><fnm>D</fnm></au>
+    <au><snm>Jacobsen</snm><fnm>JH</fnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1811.00995</source>
+  <pubdate>2018</pubdate>
+</bibl>
+
+<bibl id="B15">
+  <title><p>In-place activated batchnorm for memory-optimized training of
+  dnns</p></title>
+  <aug>
+    <au><snm>Rota Bul{\`o}</snm><fnm>S</fnm></au>
+    <au><snm>Porzi</snm><fnm>L</fnm></au>
+    <au><snm>Kontschieder</snm><fnm>P</fnm></au>
+  </aug>
+  <source>Proceedings of the IEEE Conference on Computer Vision and Pattern
+  Recognition</source>
+  <pubdate>2018</pubdate>
+  <fpage>5639</fpage>
+  <lpage>-5647</lpage>
+</bibl>
+
+<bibl id="B16">
+  <title><p>SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and<
+  0.5 MB model size</p></title>
+  <aug>
+    <au><snm>Iandola</snm><fnm>FN</fnm></au>
+    <au><snm>Han</snm><fnm>S</fnm></au>
+    <au><snm>Moskewicz</snm><fnm>MW</fnm></au>
+    <au><snm>Ashraf</snm><fnm>K</fnm></au>
+    <au><snm>Dally</snm><fnm>WJ</fnm></au>
+    <au><snm>Keutzer</snm><fnm>K</fnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1602.07360</source>
+  <pubdate>2016</pubdate>
+</bibl>
+
+<bibl id="B17">
+  <title><p>Mobilenets: Efficient convolutional neural networks for mobile
+  vision applications</p></title>
+  <aug>
+    <au><snm>Howard</snm><fnm>AG</fnm></au>
+    <au><snm>Zhu</snm><fnm>M</fnm></au>
+    <au><snm>Chen</snm><fnm>B</fnm></au>
+    <au><snm>Kalenichenko</snm><fnm>D</fnm></au>
+    <au><snm>Wang</snm><fnm>W</fnm></au>
+    <au><snm>Weyand</snm><fnm>T</fnm></au>
+    <au><snm>Andreetto</snm><fnm>M</fnm></au>
+    <au><snm>Adam</snm><fnm>H</fnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1704.04861</source>
+  <pubdate>2017</pubdate>
+</bibl>
+
+<bibl id="B18">
+  <title><p>The lottery ticket hypothesis: Finding sparse, trainable neural
+  networks</p></title>
+  <aug>
+    <au><snm>Frankle</snm><fnm>J</fnm></au>
+    <au><snm>Carbin</snm><fnm>M</fnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1803.03635</source>
+  <pubdate>2018</pubdate>
+</bibl>
+
+<bibl id="B19">
+  <title><p>Mixed precision training</p></title>
+  <aug>
+    <au><snm>Micikevicius</snm><fnm>P</fnm></au>
+    <au><snm>Narang</snm><fnm>S</fnm></au>
+    <au><snm>Alben</snm><fnm>J</fnm></au>
+    <au><snm>Diamos</snm><fnm>G</fnm></au>
+    <au><snm>Elsen</snm><fnm>E</fnm></au>
+    <au><snm>Garcia</snm><fnm>D</fnm></au>
+    <au><snm>Ginsburg</snm><fnm>B</fnm></au>
+    <au><snm>Houston</snm><fnm>M</fnm></au>
+    <au><snm>Kuchaiev</snm><fnm>O</fnm></au>
+    <au><snm>Venkatesh</snm><fnm>G</fnm></au>
+    <au><cnm>others</cnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1710.03740</source>
+  <pubdate>2017</pubdate>
+</bibl>
+
+<bibl id="B20">
+  <title><p>Training and inference with integers in deep neural
+  networks</p></title>
+  <aug>
+    <au><snm>Wu</snm><fnm>S</fnm></au>
+    <au><snm>Li</snm><fnm>G</fnm></au>
+    <au><snm>Chen</snm><fnm>F</fnm></au>
+    <au><snm>Shi</snm><fnm>L</fnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1802.04680</source>
+  <pubdate>2018</pubdate>
+</bibl>
+
+<bibl id="B21">
+  <title><p>Training deep and recurrent networks with hessian-free
+  optimization</p></title>
+  <aug>
+    <au><snm>Martens</snm><fnm>J</fnm></au>
+    <au><snm>Sutskever</snm><fnm>I</fnm></au>
+  </aug>
+  <source>Neural networks: Tricks of the trade</source>
+  <publisher>Springer</publisher>
+  <pubdate>2012</pubdate>
+  <fpage>479</fpage>
+  <lpage>-535</lpage>
+</bibl>
+
+<bibl id="B22">
+  <title><p>Training deep nets with sublinear memory cost</p></title>
+  <aug>
+    <au><snm>Chen</snm><fnm>T</fnm></au>
+    <au><snm>Xu</snm><fnm>B</fnm></au>
+    <au><snm>Zhang</snm><fnm>C</fnm></au>
+    <au><snm>Guestrin</snm><fnm>C</fnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1604.06174</source>
+  <pubdate>2016</pubdate>
+</bibl>
+
+</refgrp>
+} % end of \BMCxmlcomment
