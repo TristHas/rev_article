@@ -662,7 +662,8 @@ Assuming a noise $\epsilon^y$, equally ditributed accross all channels, the nois
 \tilde{x}_i  =& x_i + \frac{\gamma_i}{\dot{x_i}} \times \epsilon^y_i \\
 \epsilon^x_i =& \tilde{x}_i - x_i\\
 \epsilon^x_i =& \frac{\gamma_i}{\dot{x_i}} \times \epsilon^y_i\\
-\frac{|\epsilon^y|^2}{|\epsilon^x|^2} =& c \times \sum_i \frac{\dot{x_i}}{\gamma_i}
+\frac{|\epsilon^y|^2}{|\epsilon^x|^2} =& \frac{|\epsilon^y|^2}{\frac{|\epsilon^y|^2}{c} \times \sum_i \frac{\dot{x_i}^2}{\gamma_i^2}} \\
+\frac{|\epsilon^y|^2}{|\epsilon^x|^2} =& \frac{c}{\sum_i \frac{\dot{x_i}^2}{\gamma_i^2}}
 \end{align}
 \end{subequations}
 
@@ -673,15 +674,14 @@ $\hat{x_i}$ and $\dot{x_i}$ respectively, the formula for the SNR reduction fact
 \begin{align}
 \frac{|x|^2}{|y|^2} =& \frac{\sum_i |x_i|^2}{\sum_i|y|^2} \\
 \frac{|x|^2}{|y|^2} =& \frac{\sum_i (\hat{x}_i^2 + \dot{x_i}^2)}{\sum_i (\gamma_i^2 + \beta_i^2)} \\
-\alpha              =& \frac{\sum_i (\hat{x}_i^2 + \dot{x_i}^2)}{\sum_i (\gamma_i^2 + \beta_i^2)} \times \sum_i \frac{\dot{x_i}}{\gamma_i} \times c  
+\alpha              =& \frac{\sum_i (\hat{x}_i^2 + \dot{x_i}^2)}{\sum_i (\gamma_i^2 + \beta_i^2)} \times \frac{c}{\sum_i \frac{\dot{x_i}^2}{\gamma_i^2}}
 \end{align}
 \end{subequations}
 
 %The full proof of this formula is given in the appendix and follows the same reasoning as for the toy parametrization. 
 %The only assumption made by this proof is that both the input $x$ and output noise $\epsilon^y$ are identically distributed across all channels, which we found to hold true in practice. 
 Figure XXX illustrates the evolution of the SNR degradation factor $\alpha$ for different $\rho$.
-In this figure, we also verify the validity of our general formula for arbitrarily parameterized
-layer by comparing the theory to empirical evaluations.
+In this figure, we also verify the validity of erquation (22c) by comparing the theoretical values and empirical values of $\alpha$ for randomly generated Gaussian inputs $x$ and parameters $\gamma$ and $\beta$.
 
 Finally, we propose the following modification, introducing the hyperparameter $\epsilon_i$, to the invertible batch normalization layer:
 
