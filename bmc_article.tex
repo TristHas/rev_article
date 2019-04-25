@@ -879,42 +879,50 @@ We then summarize the benefits and drawbacks of our proposed architecture in com
 
 \subsubsection{Layer-wise Invertible Architecture}
 
-In this section, we quantify the accumulation of numerical errors in layer-wise invertible architectures and analyse their impact on the accuracy.
-The architecture of these models is illustrated in Figure XXX.
-We investigate the evolution of numerical errors, and their impact on accuracy, for network of different depth and different hyper-parameters. 
-Figure XXX illustrates the degradation of the signal-to-noise ration along the layers of one such model. 
-We found the two most impacting parameters to be the depth $N$ of the network and the negative slope $n$ of the activation function.
-Figure XXX shows the evolution of the numerical errors with both of these parameters.
+In this section, we quantify the accumulation of numerical errors in layer-wise invertible architectures (illustrated in Figure XXX) and analyse their impact on the accuracy.
+Figure XXX illustrates the evolution of the SNR along the layers of a toy XXX-layer model.
+This figure illustrates the continuous degradation of the reconstructed signal as errors accumulate within each layer.
 
-Next, we investigate the impact of numerical errors on the accuracy.
-In order to isolate the impact of the numerical errors on the accuracy, 
-we compare the accuracy reached by a same architecture with noisy activations and noiseless ideal activations.
-The result of the ideal reconstructions were obtained by storing the activation values during the forward pass, 
-without noisy reconstruction through inverse operations. 
-In Figure XXX, we compare the evolution of the accuracy in both settings for different depth and negative slopes.
+We found the depth $N$ of the network and the negative slope $n$ of the activation function to be the two factors impacting numerical errors the most.
+Figure XXX shows the evolution of numerical errors for network of different depth and different negative slopes.
+We are interested in the impact these numerical errors have on the accuracy.
+In order to isolate the numerical errors impact from other hyper-parameters,, 
+we compare the accuracy reached by a same architecture with and without noisy reconstructions.
+We investigate architectures with different parameters and, for each architecture, we compute the accuracy reached when 
+hidden activations are reconstructed during the backward pass to the accuracy reached using the original hidden activations,
+as computed during the forward pass.
 
-For small depths (or high negative slopes), in which the numerical errors are minimum, both models yield similar accuracy.
+The impact of numerical errors is given by the difference between both results, in Figure XXX.
+In this figure, we compare the accuracy reached for different depth $N$ and negative slopes $n$.
+For small depths and high negative slopes settings, 
+in which the numerical errors are minimum, 
+both models yield similar accuracy.
 However, as the numerical errors grow, the accuracy of the model goes down, 
 while the accuracy of the ideal baseline keeps increasing, 
 which can be seen with both depth and negative slopes.
 This loss in accuracy is the direct result of numerical errors, 
-which prevent the model from achieving higher accuracies.
+which prevent the model from converging to higher accuracies.
 
 \subsubsection{Hybrid Invertible Architecture}
 
 In section XXX, we introduced an hybrid architecture, 
-illustrated in Figure XXX, to prevent the impact of numerical errors on accuracy.
+illustrated in Figure XXX, to prevent the negative impact of numerical errors on accuracy.
 Figure XXX shows the propagation of the signal to noise ratio through the layers of such hybrid architecture.
-As can be seen in this figure, XXX.
+While the hybrid architecture also suffers from a sharp SNR degradation within the reversible blocks,
+we can see that the SNR almost perfectly recovers at the end of each reversible block.
+This illustrates the benefits of using the reversible block inverse instead of layer-wise inversion to 
+limit the propagation of reconstruction errors to lower layers.
 
-Figure XXX compares the evolution of the accuracy reached by this hybrid architecture with noisy activations and noiseless ideal activations as depth and negative slope increase.
-The negative impact of numerical errors observed in the layer-wise architecture are gone.
+Figure XXX reproduces the experiment of Figure XXX with an hybrid architecture.
+As the hybrid architecture stabilizes training, the negative impact of numerical errors 
+observed in the layer-wise architecture are gone.
 
 \subsection{Model comparison}
 
 Table 1 summarizes our main result.
-In this table, we compare architectures with different pattern of revertibility.
-To allow for a fair comparison, we have tweaked each architecture to keep the number of parameter constant,
+In this table, we compare architectures with different patterns of reversibility.
+To allow for a fair comparison, we have tweaked each architecture to keep their 
+number of parameter as close as possible.
 except for the i-RevNet. The i-Revnet pooling design restrict architectures XXX.
 It should be noticed that the results of the i-RevNet architecture we present differs from the original i-Revnet model
 as our implementation uses RevNet-like reversible modules with one module per channel split for similarity with
