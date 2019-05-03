@@ -88,14 +88,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \author[
-   addressref={aff1},                   % id's of addresses, e.g. {aff1,aff2}
-   corref={aff1},                       % id of corresponding address, if any
-   email={tristan.hascoet@me.cs.scitec.kobe-u.ac.jp}   % email address
+   addressref={aff1},
+   noteref={n1},
+   email={tristan.hascoet@me.cs.scitec.kobe-u.ac.jp}
 ]{\inits{TH}\fnm{Tristan} \snm{Hascoet}}
 \author[
-   addressref={aff3},                   % id's of addresses, e.g. {aff1,aff2}
-   corref={aff3},                       % id of corresponding address, if any
-   email={XXX}   			% email address
+   addressref={aff3},
+   noteref={n1},
+   email={quentin.febvre@gmail.com}
 ]{\inits{QF}\fnm{Quentin} \snm{Febvre}}
 \author[
    addressref={aff1,aff2},
@@ -105,6 +105,7 @@
    addressref={aff1,aff2},
    email={takigu@kobe-u.ac.jp}
 ]{\inits{TT}\fnm{Tetsuya} \snm{Takiguchi}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
 %% Enter the authors' addresses here        %%
@@ -114,21 +115,23 @@
 %%                                          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\address[id=aff1]{%                           % unique id
+\address[id=aff1]{                            % unique id
   \orgname{Kobe University},                  % university, etc
   \street{1-1 Rokkodaicho, Nada Ward},                     %
   \postcode{657-0013}                         % post or zip code
   \city{Kobe},                                % city
   \cny{Japan}                                 % country
 }
-\address[id=aff2]{%
+
+\address[id=aff2]{
   \orgname{Association for Advanced Science and Technology},
   \street{1-1 Rokkodaicho, Nada Ward},
   \postcode{657-0013}
   \city{Kobe},
   \cny{Japan}
 }
-\address[id=aff3]{%
+
+\address[id=aff3]{
   \orgname{Sicara},
   \street{48 Bd des Batignolles},
   \postcode{75017}
@@ -145,11 +148,9 @@
 %%                                          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%\begin{artnotes}
-%\note{Sample of title note}     % note to the article
-%\note[id=n1]{Equal contributor} % note, connected to author
-%\end{artnotes}
-%\end{fmbox}% comment this for two column layout
+\begin{artnotes}
+\note[id=n1]{Equal contributor} % note, connected to author
+\end{artnotes}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 %%                                          %% 
