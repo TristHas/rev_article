@@ -1,6 +1,6 @@
 %% BioMed_Central_Bib_Style_v1.01
 
-\begin{thebibliography}{22}
+\begin{thebibliography}{23}
 % BibTex style file: bmc-mathphys.bst (version 2.1), 2014-07-24
 \ifx \bisbn   \undefined \def \bisbn  #1{ISBN #1}\fi
 \ifx \binits  \undefined \def \binits#1{#1}\fi
@@ -345,6 +345,18 @@ arXiv preprint arXiv:1604.06174
 \end{botherref}
 \endbibitem
 
+%%% 23
+\bibitem{smith2017super}
+\begin{botherref}
+\oauthor{\bsnm{Smith}, \binits{L.N.}},
+\oauthor{\bsnm{Topin}, \binits{N.}}:
+Super-convergence: Very fast training of neural networks using large learning
+  rates.
+arXiv preprint arXiv:1708.07120
+(2017)
+\end{botherref}
+\endbibitem
+
 \end{thebibliography}
 
 \newcommand{\BMCxmlcomment}[1]{}
@@ -645,6 +657,17 @@ arXiv preprint arXiv:1604.06174
   </aug>
   <source>arXiv preprint arXiv:1604.06174</source>
   <pubdate>2016</pubdate>
+</bibl>
+
+<bibl id="B23">
+  <title><p>Super-convergence: Very fast training of neural networks using
+  large learning rates</p></title>
+  <aug>
+    <au><snm>Smith</snm><fnm>LN</fnm></au>
+    <au><snm>Topin</snm><fnm>N</fnm></au>
+  </aug>
+  <source>arXiv preprint arXiv:1708.07120</source>
+  <pubdate>2017</pubdate>
 </bibl>
 
 </refgrp>
