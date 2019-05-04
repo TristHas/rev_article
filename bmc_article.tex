@@ -583,7 +583,7 @@ In this section, we present invertible layers that act as drop-in replacement fo
 
 \subsubsection{Invertible batch normalization}
 
-As batch normalization is not a bijective operation, it does not have an analytical inverse.
+As batch normalization is not a bijective operation, it does admit an analytical inverse.
 However, the inverse reconstruction of a batch normalization layer can be realized with minimal memory cost.
 Given first and second order moment parameters $\beta$ and $\gamma$, the forward $f$ and inverse $f^{-1}$ operation of an invertible batch normalization layer can be computed as follows:
 
@@ -599,7 +599,7 @@ Hence, the input activation $x$ can be recovered from $y$ through $f^{-1}$ at th
 
 Let us consider the accumulation of numerical errors arising from the inverse computation of an invertible batch normalization layer.
 During the backward pass, the invertible batch norm layer is supposed to compute its input $x=f^{-1}(y, \hat{x}, \dot{x})$ from the output $y$.
-In reality, however, the output propagated back to the layer by upstream invertible layers is a noisy estimate $\hat{y}=y+\epsilon_y$ of the true output due to the numerical errors introduced by upstream layers.
+In reality, however, the output recovered by upstream invertible layers is a noisy estimate $\hat{y}=y+\epsilon_y$ of the true output due to numerical errors introduced by upstream layers.
 Let us define the signal to noise ratio (SNR) of the input and output signal as follows:
 
 \begin{subequations}
@@ -609,18 +609,22 @@ snr_i = \frac{|x|^2}{|\epsilon^x|^2}
 \end{align}
 \end{subequations}
 
-We are interested in characterizing the factor of reduction $\alpha$ of the SNR through the inverse reconstruction:
+We are interested in characterizing the factor $\alpha$ of reduction of the SNR through the inverse reconstruction:
 
 \begin{equation}
 \alpha = \frac{snr_i}{snr_o}
 \end{equation}
 
-To illustrate the mechanism through which the batch normalization inverse operation reduces the SNR, let us consider a toy layer with only two channels and parameters $\beta=[0,0]$ and $\gamma = [1, \rho]$. For simplicity, let us consider an input signal $x$ independently and identically distributed across both channels with zero mean and standard deviation 1 so that, in the forward pass, we have:
+To illustrate the mechanism through which the batch normalization inverse operation reduces the SNR, 
+let us consider a toy layer with only two channels and parameters $\beta=[0,0]$ and $\gamma = [1, \rho]$. 
+For simplicity, let us consider an input signal $x$ independently and identically distributed across both channels 
+with zero mean and standard deviation 1 so that, in the forward pass, we have:
 
 \begin{subequations}
 \begin{align}
  y =& [y_0, y_1] \\
  y =& [x_0, x_1 \times \rho] \\
+ |y|^2 =& |x_0|^2 + |x_1|^2 \times \rho^2 \\
  |y|^2 =& \frac{1}{2} \times |x|^2 + \frac{1}{2} \times |x|^2 \times \rho^2 \\
  |y|^2 =&\frac{|x|^2}{2} \times (1+\rho^2)
 \end{align}
@@ -637,12 +641,13 @@ Similarly, let us suppose a noise $\epsilon^y$ identically distributed across bo
 \tilde{x}       =& [ x_0 + \epsilon_{0}^y, x_1 + \frac{\epsilon_{1}^y}{\rho} ]\\
 \epsilon^x      =& \tilde{x} - x\\
 \epsilon^x      =& [ \epsilon_0^y, \frac{\epsilon_{1}^y}{\rho} ]\\
+|\epsilon^x|^2  =& |\epsilon_0^y|^2 + \frac{|\epsilon_1^y|^2}{\rho^2} \\
 |\epsilon^x|^2  =& \frac{1}{2} \times |\epsilon^y|^2 + \frac{1}{2} \times \frac{|\epsilon^y|^2}{\rho^2} \\
 |\epsilon^x|^2  =& \frac{|\epsilon^y|^2}{2} \times (1 + \frac{1}{\rho^2})
 \end{align}
 \end{subequations}
 
-Using the above formulation, the signal to noise ration reduction factor $\alpha$ can be expressed as:
+Using the above formulation, the SNR reduction factor $\alpha$ can be expressed as:
 
 \begin{subequations}
 \begin{align}
@@ -651,6 +656,9 @@ Using the above formulation, the signal to noise ration reduction factor $\alpha
 \alpha =& \frac{4}{(1+\frac{1}{\rho^2}) \times (1 + \rho^2)}
 \end{align}
 \end{subequations}
+
+Figure 5 shows the expected evolution of $\alpha$ through our toy layer for different values of the factor $\pho$.
+To validate our formula, we emperically evaluate $\alpha$ for normal Gaussian inputs $x$ and output noise $\epsilon^y$ and find it to closely match the theoretical results given by equation 19. 
 
 In essence, numerical instabilities in the inverse computation of the batch normalization layer arise
 from the fact that the signal across different channels $i$ and $j$ are amplified by different factors $\gamma_i$ and $\gamma_j$.
@@ -695,8 +703,8 @@ $\hat{x_i}$ and $\dot{x_i}$ respectively, the formula for the SNR reduction fact
 
 %The full proof of this formula is given in the appendix and follows the same reasoning as for the toy parametrization. 
 %The only assumption made by this proof is that both the input $x$ and output noise $\epsilon^y$ are identically distributed across all channels, which we found to hold true in practice. 
-Figure 5 illustrates the evolution of the SNR degradation factor $\alpha$ for different $\rho$.
-In this figure, we also verify the validity of equation (22c) by comparing the theoretical values and empirical values of $\alpha$ for randomly generated Gaussian inputs $x$ and parameters $\gamma$ and $\beta$.
+We verify the validity of equation (22c) by empirically evaluating the different $\alpha$ ratio yielded by randomly initialized batch normalization layers with input values and output noise randomly drawn from Gaussian distribution.  
+Figure 5 plots the emprically found $\alpha$ values against the theoretical values predicted by our formula and show a close match. 
 
 Finally, we propose the following modification, introducing the hyperparameter $\epsilon_i$, to the invertible batch normalization layer:
 
@@ -730,7 +738,8 @@ y \times n, & \text{otherwise}
 \end{subequations}
 
 The analysis of the numerical errors yielded by the invertible Leaky ReLU follows a similar reasoning as the toy batch normalization example with an additional subtlety:
-Similar to the toy batch normalization example, we can think of the leaky ReLU as artificially splitting the input x across two different channels, one channel leaving the output unchanged and one channel multiplying the input by a factor $1/n$ during the forward pass and multiplying the output by a factor $n$ during the inverse pass.
+Similar to the toy batch normalization example, we can think of the leaky ReLU as artificially splitting the input x across two different channels, 
+one channel leaving the output unchanged and one channel that divides the input by a factor $n$ during the forward pass and multiplies its output by a factor $n$ during the backward pass.
 
 However, these artificial channels are defined by the sign of the input and output during the forward and backward pass respectively.
 Hence, we need to consider the cases in which the noise flips the sign of the output activations, 
@@ -750,8 +759,9 @@ y_{pn} \  \text{if}\  \hat{y}<0    &\text{and}\  y>=1
 Where the index $np$, for instance, represents negative activations whose reconstructions have become positive due to the added noise. 
 The signal to noise ratio of the input and outputs can be expressed respectively as:
 
-In the case where $y >> \epsilon_y$, the occurrence of sign flips is negligible,
-resulting in a formula similar to the toy batch normalization examples:
+In the case where $y >> \epsilon_y$, the probability of sign flips ($y_{np}$, $y_{pp}$) is negligible, 
+so that the output signal $y$ is evenly splited along $y_{pp}$ and $y_{nn}$.
+In this regime, the degradation of the SNR obeys a formula similar to the toy batch normalization example:
 
 \begin{subequations}
 \begin{align}
@@ -795,15 +805,15 @@ and, in Section 5.1, we investigate the impact of the negative slope parameter o
 When the noise reaches an amplitude similar to or greater than the activation signal,
 the effects of sign flips complicate the equation. 
 However, in this regime, the signal to noise ratio becomes too low for training to converge,
-as numerical errors prevent any useful weight update, so we leave open the problem of characterizing this regime.
+as numerical errors prevent any useful weight update, so we leave the problem of characterizing this regime open.
 
 \subsubsection{Invertible convolutions}
 
 Invertible convolution layers can be defined in several ways.
 The inverse operation of a convolution is often referred to as deconvolution,
-and are defined for a subspace of the kernel weight space.
-Deconvolutions are computationally expensive and is subject to numerical errors.
+and is defined for a subspace of the kernel weight space.
 
+However, deconvolutions are computationally expensive and subject to numerical errors.
 Instead, we choose to implement invertible convolutions using the channel partitioning scheme as the reversible block design for its simplicity, 
 numerical stability and computational efficiency.
 Hence, invertible convolutions, in our architecture, can be seen as minimal reversible blocks
@@ -816,7 +826,8 @@ compared to the invertible batch normalization and Leaky ReLU layers.
 
 In \cite{jacobsen2018revnet}, the authors propose an invertible pooling operation that operates
 by stacking the neighboring elements of the pooling regions along the channel dimension.
-AS noted in Section 3.5, the increase in channel size at each pooling level induces a quadratic increase in the following convolution layers parameters.
+As noted in Section 3.5, the increase in channel size at each pooling level 
+induces a quadratic increase in the number of parameters of upstream convolution, which creates a new memory bottleneck.
 
 To circumvent this quadratic increase in the memory cost of the weight, 
 we propose a new pooling layer that stacks the elements of neighboring pooling regions along the batch size instead of the channel size. 
@@ -835,8 +846,8 @@ the reshaping operation performed by both pooling layers can be formalized as fo
 \end{align}
 \end{subequations}
 
-Channel pooling gives us a way to increase the number of channels at a given layer of the architecture.
-Batch pooling gives us a way to perform volume-preserving pooling operations without the cost of a quadratic increase in the kernel weights of subsequent layer.
+Channel pooling gives usa way to perform volume-preserving pooling operations while increasing the number of channels at a given layer of the architecture,
+while batch pooling gives us a way to perform volume-preserving pooling operations while keeping the number of channel constant, 
 By alternating between channel and batch pooling, we can control the number of channels at each pooling level of the model's architecture.
 
 \subsubsection{Layer-wise invertible architecture}
@@ -848,11 +859,12 @@ For an input channel size of 32, The peak memory usage for an iteration of train
 \begin{align}
 \mathcal{M} &= M_{\theta} + M_{z} + M_{g} \\
 \mathcal{M} &= (M_{\theta} + (M_z' + M_{g}') \times (h \times w \times bs)) \times bpe \\
-\mathcal{M} &= (29.6 \times 10^6 + 320 \times (h \times w \times bs)) \times bpe \\
+\mathcal{M} &= (29.6 \times 10^6 + 320 \times (h \times w \times bs)) \\
 \end{align}
 \end{subequations}
 
-Training an iteration over batch of 512 images of resolution $32 \times 32$ would require $\mathcal{M}=197$MB of VRAM. 
+Training an iteration over a typical batch of 32 images with resolution $240 \times 240$ would require $\mathcal{M}=590$MB of VRAM. 
+Similar to the RevNet architecture, the reconstruction of the hidden activations by inverse transformations during the backward pass comes with an additional computational cost similar to a forward pass.
 
 \subsection{Hybrid architecture}
 
@@ -865,11 +877,11 @@ while the role of the layer-wise invertible layers is to efficiently recompute t
 blocks at the same time as the gradient propagates to circumvent the local memory bottleneck of the reversible module.
 
 The backward pass through these hybrid reversible blocks is illustrated in Figure 9 and proceeds as follows: 
-First, the input is $x$ computed from the output $y$ through the analytical inverse of the reversible block.
+First, the input $x$ is computed from the output $y$ through the analytical inverse of the reversible block.
 These computations are made without storing the hidden activation values of the sub-modules.
-Second, the gradient of the activations through the reversible block modules.
+Second, the gradient of the activations are propagated backward through the reversible of the block modules.
 As each layer within these modules is invertible, the hidden activation values
-are computed using the layer-wise inverse simultaneously to the gradient.
+are computed using the layer-wise inverse along the gradient.
 
 The analytical inverse of the residual level reversible blocks is used to propagate hidden activations with minimal reconstruction error to the lower modules,
 while layer-wise inversion allows us to alleviate the local bottleneck of the reversible block by computing the hidden activation values together with the backward flow of the gradients. 
@@ -882,16 +894,16 @@ The peak memory consumption of our proposed architecture, as illustrated in Figu
 \begin{align}
 \mathcal{M} &= M_{\theta} + M_{z} + M_{g} \\
 \mathcal{M} &= (M_{\theta} + (M_z' + M_{g}') \times (h \times w \times bs)) \times bpe \\
-\mathcal{M} &= (14.8 \times 10^6 + 352 \times (h \times w \times bs)) \times bpe \\
+\mathcal{M} &= (14.8 \times 10^6 + 352 \times (h \times w \times bs)) \\
 \end{align}
 \end{subequations}
 
-Training an iteration over batch of 512 images of resolution $32 \times 32$ would require $\mathcal{M}=200$MB of VRAM.
+Training an iteration over batch of 32 images of resolution $240 \times 240$ would require $\mathcal{M}=648$MB of VRAM.
 
 It should be noted, however, that this architecture adds an extra computational cost as both the reversible block inverse and layer-wise inverse need to be computed.
-Hence, instead of one additional forward pass, this hybrid architecture comes with a computational cost equivalent to performing two additional forward passes
+Hence, instead of one additional forward pass, as in the RevNet and layer-wise architectures,
+our hybrid architecture comes with a computational cost equivalent to performing two additional forward passes
 during the backward pass. 
-
 
 \section{Experiments and results}
 
@@ -899,7 +911,7 @@ We use the CIFAR10 dataset as a benchmark for our experiments.
 The CIFAR10 dataset is complex enough to require efficient architectures to reach high accuracy, 
 yet small enough to enable us to rapidly iterate over different architectural designs.
 We start by analysing numerical errors arising in layer-wise invertible and hybrid architectures, 
-outline their impact on accuracy.
+and outline their impact on accuracy.
 This analysis motivates our choice of architecture and hyperparameter.
 We then summarize the benefits and drawbacks of our proposed architecture in comparison to several reversible baselines.
 
@@ -1016,6 +1028,10 @@ and illustrated the efficiency of our approach by training a CNN to 93\% accurac
 \section*{Abreviation}
 
 CNN: Convolutional Neural Network  \\
+SNR: Signal to Noise Ration \\
+GPU: Graphical Processing Unit \\
+ResNet: Residual Network \\
+RevNet: Reversible Network
 
 \begin{backmatter}
 \section*{Availability of data and material}
