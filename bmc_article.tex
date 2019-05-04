@@ -323,18 +323,19 @@ Research into resource optimization of CNNs covers a wide array of techniques, m
 
 % Architecture
 On the architectural side, Squeezenet \cite{iandola2016squeezenet} was first proposed as an efficient neural architecture reducing the number of model parameters while maintaining high classification accuracy.
-MobileNet \cite{howard2017mobilenets} use depth-wise separable convolutions to further reduce the computational cost of inference for embedded device applications.
+MobileNet \cite{howard2017mobilenets} uses depth-wise separable convolutions to further reduce the computational cost of inference for embedded device applications.
 
 % Pruning & lottery ticket
-Network pruning is a set of techniques \cite{molchanov2016pruning} developed to decrease the model weight size and computational complexity.
+Network pruning \cite{molchanov2016pruning} is a set of techniques developed to decrease the model weight size and computational complexity.
 Network pruning works by removing the network weights that contribute the least to the model output.
-Pruning deep models has been shown to drastically reduce the memory cost and computation time of inference without  significantly hurting model accuracy.
+Pruning deep models has been shown to drastically reduce the memory cost and computational cost of inference without  significantly hurting model accuracy.
 Although pruning has been concerned with optimization of the resource inference, the recently proposed lottery ticket hypothesis \cite{frankle2018lottery} has shown that specifically pruned networks could  be trained from scratch to high accuracy.
 This may be an interesting and complementary line of work to investigate in the future to reduce training memory costs.
 
 % low precision arithmetic.
 Low precision arithmetic has been proposed as a mean to reduce both memory consumption and computation time of deep learning models. Mixed precision training \cite{micikevicius2017mixed} combines float16 with float32 operations to avoid numerical instabilities due to either overflow or underflow.
 For inference,  integer quantization \cite{jacob2018quantization,wu2018training} has been shown to drastically improve the computation and memory efficiency and has been successfully deployed on both edge devices and data centers.
+Integrating mixed-precision training to our proposed architecture would allow us to further reduce training memory costs. 
 
 % Gradient checkpointing
 Most related to our work, gradient checkpointing was introduced as a mean to reduce the memory cost of deep neural network training.
@@ -376,7 +377,7 @@ During the backward pass, the gradient of the loss with respect to the hidden ac
 
 Before propagating the loss gradient with respect to its input to the previous layer, 
 each parameterized layer computes the gradient of the loss with respect to its parameters. 
-In vanilla SGD, for a given learning rate $\eta$, the weight gradients are subsequently used to update the weight values:
+In vanilla SGD, for a given learning rate $\eta$, the weight gradients are subsequently used to update the weight values as:
 
 \begin{subequations}
 \begin{align}
@@ -393,10 +394,10 @@ In convolution layers, for instance, the weight gradients can be computed as the
  \end{equation}
 
 Hence, computing the derivative of the loss with respect to each layer's parameters $\theta_i$ requires knowledge of the input activation values $z_{i-1}$.  
-In the standard backpropagation algorithm, hidden layers activations are stored upon computation during the forward pass. 
+In the standard backpropagation algorithm, hidden layers activations are stored in memory upon computation during the forward pass. 
 Activations accumulate in live memory buffers until used for the weight gradients computation in the backward pass. 
-Once the weight gradients computed, the hidden activation buffers can be freed from live memory. 
-However, the accumulation of activation values stored within each parameterized layer along with the depth of the network during the forward pass creates a major bottleneck in GPU memory.
+Once the weight gradients computed in the backward pass, the hidden activation buffers can be freed from live memory. 
+However, the accumulation of activation values stored within each parameterized layer along the forward pass creates a major bottleneck in GPU memory.
 
 The idea behind reversible designs is to constrain the network architecture to feature invertible transformations.
 Doing so, activations $z_i$ in lower layers can be recomputed through inverse operations from the activations $z_{j>i}$ of higher layers.
@@ -412,18 +413,20 @@ We divide the total training memory footprint $\mathcal{M}$ into several memory 
 \end{equation}
 
 In the following subsections, we detail the memory footprint of existing architectures with different reversibility patterns.
-To help us formalize these memory costs, we further introduce the following notations: let $n(x)$ denote the number of elements in tensor $x$, i.e.; if $x$ is an $h \times w$ matrix, then $n(x)=h \times w$. 
-Let $bpe$ be the memory cost in bytes per elements of a given precision. 
-For float32 tensors, $bpe=4$. We use $bs$ to denote the batch size, and $c_i$ to denote the number of channels at layer $i$.
+To help us formalize these memory costs, we further introduce the following notations: 
+let $n(x)$ denote the number of elements in a tensor $x$, i.e.; if $x$ is an $h \times w$ matrix, then $n(x)=h \times w$. 
+Let $bpe$ be the memory cost in bytes per elements of a given precision so that the actual memory cost for storing an $h \times w$ matrix is $n(x) \times bpe$. 
+For instance, float32 tensors have a memory cost per element $bpe=4$. 
+We use $bs$ to denote the batch size, and $c_i$ to denote the number of channels at layer $i$.
 
 \subsection{Vanilla ResNet}
 
 The architecture of a vanilla ResNet-18 is shown in Figure 1.
-Vanilla ResNet does not use reversible computations so that the input activations of all parameterized layers need to be accumulated in memory during the forward pass for the computation of the weight gradients to be done in the backward pass.
+Vanilla ResNets do not use reversible computations so that the input activations of all parameterized layers need to be accumulated in memory during the forward pass for the computation of the weight gradients to be done in the backward pass.
 
 Hence the peak memory footprint of training a vanilla ResNet happens at the beginning of the backward pass when the top layer's activation gradients need to be stored in memory in addition to the full stack of hidden activation values.
 
-Let us denote by $P \subset N$ the subset of parameterized layers of the $F$ 
+Let us denote by $P \subset N$ the subset of parameterized layers of a network $F$ 
 (i.e.; convolutions and batch normalization layers, excluding activation functions and pooling layers). 
 The memory cost associated with storing the hidden activation values is given by: 
 
@@ -439,7 +442,7 @@ $h_i$ and $w_i$ are determined by the input image size $h \times w$ and the pool
 
 \begin{subequations}
 \begin{align}
-M_{z} &= \times \sum_{i \in P} bs \times h \times w \times p_i \times c_i \times bpe \\
+M_{z} &= \sum_{i \in P} bs \times h \times w \times p_i \times c_i \times bpe \\
 M_{z} &= bs \times h \times w \times \sum_{i \in P} p_i \times c_i \times bpe \\
 M_{z}' &= M_{z} / (bs \times h \times w)  \\ß
 M_{z}' &= \sum_{i \in P} p_i \times c_i \times bpe 
@@ -448,12 +451,9 @@ M_{z}' &= \sum_{i \in P} p_i \times c_i \times bpe
 
 The memory footprint of the weights is given by:
 
-\begin{subequations}
-\begin{align}
- M_{\theta} &= \sum_{i \in P}  n(\theta_i)\times bpe \\
- M_{\theta} &= \sum_{i \in P} c_i \times c_{i-1} \times k^2 \times bpe
-\end{align}
-\end{subequations}
+\begin{equation}
+ M_{\theta} &= \sum_{i \in P}  n(\theta_i)\times bpe 
+\end{equation}
 
 % Introduce memory cost per pixel
 The memory footprint of the gradients correspond to the size of the gradient buffers at the time of peak memory usage. In a vanilla ResNet18 model, this peak memory usage happens during the backward pass through the last convolution of the network.
@@ -474,34 +474,45 @@ For a ResNet parameterized following Table 1, the peak memory consumption can th
 \begin{align}
 \mathcal{M} &= M_{\theta} + M_{z} + M_{g} \\
 \mathcal{M} &= (M_{\theta} + (M_{z}' + M_{g}') \times (h \times w \times bs)) \times bpe \\
-\mathcal{M} &= (12.5*10^6 + 1928 \times (h \times w \times bs)) \times bpe \\ 
+\mathcal{M} &= (12.5*10^6 + 1928 \times (h \times w \times bs)) \\ 
 \end{align}
 \end{subequations}
 
-For example, a training iteration of batch of 512 images of resolution $32 \times 32$ requires $\mathcal{M}=3.4$GB of VRAM.
+For example, a training iteration over a typical batch of 32 images of resolution $240 \times 240$ 
+requires 12.5 MB of memory to store the model weights and 3.8 GB of memory to store the hidden layers activations and gradients
+for a total of $\mathcal{M}=3.81$ GB of VRAM.
+The memory cost of the hidden activations is thus the main memory bottleneck of CNN training as the cost assoiated with 
+the model weights is negligible in comparison.
 
 \subsection{RevNet}
 % Explain invertible and non-invertible layers
-The RevNet architecture introduces reversible blocks as drop-in replacements of the residual blocks.
-Reversible blocks have analytical inverses that allow for the computation of both their input and hidden activation values from their output activations.
-Two factors create memory bottlenecks which we refer to as local and global bottlenecks.
+The RevNet architecture introduces reversible blocks as drop-in replacements of the residual blocks of the ResNet architecture.
+Reversible blocks have analytical inverses that allow for the computation of both their input and hidden activation values from the value of their output activations.
+Two factors create memory bottlenecks in training RevNet architectures, which we refer to as the local and global bottlenecks.
 
 First, the RevNet architecture features non-volume preserving max-pooling layers, for which the inverse cannot be computed.
-As these layers do not have analytical inverses, they must store in memory the activation values of their input for the computation of lower layer's activations. 
-We refer to the memory cost associated with storing these activations as the global bottleneck, as these activations need to be accumulated during the forward pass throughout the full architecture.
+As these layers do not have analytical inverses, their input must be stored in memory during the forward pass 
+for the reconstruction of lower layer's activations to be computed during the backward pass. 
+We refer to the memory cost associated with storing these activations as the global bottleneck, 
+since these activations need to be accumulated during the forward pass through the full architecture.
 
 The local memory bottleneck has to do with the synchronization of the reversible block computations:
 While activations values are computed by a forward pass through the reversible block modules,
-gradients computations flow backward so that activations and gradient computations cannot be performed simultaneously.
+gradients computations flow backward through these modules so that the activations and gradient 
+computations cannot be performed simultaneously.
 Figure 2 illustrates the process of backpropagating through a reversible block:
 First, the input activation values of the parameterized hidden layers within the reversible blocks are recomputed from the output.
 Once the full set of activation have been computed and stored in GPU memory, the backpropagation of the gradients through the reversible block can begin.
 We refer to the accumulation of the hidden activation values within the reversible block as the local memory bottleneck.
 
 % Compute memory footprint.
-For a typical parameterization of a RevNet, as summarized in Table 1, the local bottleneck of lower layers actually outweighs the global memory bottleneck introduced by non-reversible pooling layers.
-Indeed, as the spatial resolution decreases with pooling operations, the cost associated with storing activation in higher layers becomes negligible compared to the cost of lower layers.
-Hence, the peak memory consumption of the RevNet architecture, as illustrated in Figure 3, happens in the backward pass through the first reversible bloc,
+For a typical parameterization of a RevNet, as summarized in Table 1, 
+the local bottleneck of lower layers actually outweighs the global memory bottleneck introduced by non-reversible pooling layers.
+Indeed, as the spatial resolution decreases with pooling operations, 
+the cost associated with storing the input activations of higher layers becomes 
+negligible compared to the cost of storing activation values in lower layers.
+Hence, surprisingly, the peak memory consumption of the RevNet architecture, as illustrated in Figure 3, 
+happens in the backward pass through the first reversible block,
 in which the local memory bottleneck is maximum.
 For the architecture described in Table 1, the peak memory consumption can be computed as:
 
@@ -509,12 +520,12 @@ For the architecture described in Table 1, the peak memory consumption can be co
 \begin{align}
 \mathcal{M} &= M_{\theta} + M_{z} + M_{g} \\
 \mathcal{M} &= (M_{\theta} + (M_z' + M_{g}') \times (h \times w \times bs)) \times bpe \\
-\mathcal{M} &= (12.7 \times 10^6 + 640 \times (h \times w \times bs)) \times bpe \\
+\mathcal{M} &= (12.7 \times 10^6 + 640 \times (h \times w \times bs)) \\
 \end{align}
 \end{subequations}
 
 Following our previous example, a RevNet architecture closely mimicking the ResNet-18 architecture
-requires $\mathcal{M}=348$MB of VRAM for a training iteration over batch of 512 images of resolution $32 \times 32$.
+requires $\mathcal{M}=1.19$ GB of VRAM for a training iteration over batch of 32 images of resolution $240 \times 240$.
 
 Finally, the memory savings allowed by the reversible block come with the additional computational cost of computing the hidden activations during the backward pass.
 As noted in the original paper, this computational cost is equivalent to performing one additional forward pass.
@@ -538,7 +549,7 @@ M(\theta) &= c^2 \times k_h \times k_w
 \end{subequations}
 
 Consider an iRevNet network with initial channel size 32.
-After three levels of $2 \times 2$ pooling, the effective channel size becomes $32 \times 4^3=2048$. A typical $3 \times 3$ convolution layer kernel for higher layers of such network would have $n(\theta)=2048 \times 3 \times 3 \times 2048=37M$ parameters.
+After three levels of $2 \times 2$ pooling, the effective channel size becomes $32 \times 4^3=2048$. A typical $3 \times 3$ convolution layer kernel for higher layers of such network would have $n(\theta)=2048^2 \times 3 \times 3=37M$ parameters.
 At this point, the memory cost of the network weights $M_{\theta}$ becomes an additional memory bottleneck.
 
 Furthermore, the iRevNet architecture does not address the local memory bottleneck of the reversible blocks.
@@ -549,11 +560,11 @@ For an initial channel size of 32, as summarized in Table 1, the peak memory con
 \begin{align}
 \mathcal{M} &= M_{\theta} + M_{z} + M_{g} \\
 \mathcal{M} &= (M_{\theta} + (M_z' + M_{g}') \times (h \times w \times bs)) \times bpe \\
-\mathcal{M} &= (171 \times 10^6 + 640 \times (h \times w \times bs)) \times bpe \\
+\mathcal{M} &= (171 \times 10^6 + 640 \times (h \times w \times bs)) \\
 \end{align}
 \end{subequations}
 
-Training such an architecture for an iteration over batch of 512 images of resolution $32 \times 32$ would require $\mathcal{M}=506$GB of VRAM.
+Training such an architecture for an iteration over batches of 32 images of resolution $240 \times 240$ would require $\mathcal{M}=1.35$GB of VRAM.
 In the next section, we introduce both layer-wise reversibility and a variant on this pooling operations to address the local memory bottleneck 
 of reversible blocks and the weight memory bottleneck respectively.
 
