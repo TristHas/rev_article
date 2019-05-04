@@ -27,6 +27,7 @@
 \usepackage{multirow}
 \usepackage{algorithmic}
 \usepackage{algorithm}
+
 %\usepackage{caption}
 %\usepackage{algpseudocode}
 %\usepackage[applemac]{inputenc} %applemac support if unicode package fails
@@ -172,7 +173,7 @@ In this paper, we push this idea to the extreme and analyze reversible network d
 We investigate the propagation of numerical errors in long chains of invertible operations and analyze their effect on training.
 We introduce the notion of pixel-wise memory cost to characterize the memory footprint of model training,
 and propose a new model architecture able to efficiently train arbitrarily deep neural networks with a minimum memory cost of 352 bytes per input pixel.
-This new kind of architecture enables training large neural networks on very limited memory, opening the door for neural network training on embedded devices or non-specialized hardware. For instance, we demonstrate training of our model to 93\% accuracy on the CIFAR10 dataset within 67 minutes on a low-end Nvidia GTX750 GPU with only 1GB of memory.
+This new kind of architecture enables training large neural networks on very limited memory, opening the door for neural network training on embedded devices or non-specialized hardware. For instance, we demonstrate training of our model to 93.3\% accuracy on the CIFAR10 dataset within 67 minutes on a low-end Nvidia GTX750 GPU with only 1GB of memory.
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -244,7 +245,7 @@ Training large CNN requires special GPUs with large memory capacity.
 Typical desktop GPUs memory capacity is too small for training large CNNs.
 As a result, getting into deep learning research comes with the barrier cost of either buying specialized hardware or renting live instances from cloud service providers. 
 Reducing the memory cost of deep model training would allow training deep nets on standard graphic cards without the need for specialized hardware, effectively removing this barrier cost.
-In this paper, we demonstrate efficient training of a CNN on the CIFAR10 dataset (93\% accuracy within 67 minutes) on an Nvidia GTX750 with only 1GB of memory.
+In this paper, we demonstrate efficient training of a CNN on the CIFAR10 dataset (93.3\% accuracy within 67 minutes) on an Nvidia GTX750 with only 1GB of memory.
 
 % 2.2
 \textbf{On-device training:}
@@ -284,7 +285,7 @@ To mitigate the impact of these numerical errors on the model accuracy, we propo
 
 % Summary of the contribution
 Our main result is to present a new architecture that allows to efficiently train a CNN with the minimal memory cost of 352 bytes per pixel.
-We demonstrate the efficiency of our method by efficiently training a model to 93\% accuracy on the CIFAR10 dataset within 67 minutes on a low-end Nvidia GTX750 with only 1GB of VRAM.
+We demonstrate the efficiency of our method by efficiently training a model to 93.3\% accuracy on the CIFAR10 dataset within 67 minutes on a low-end Nvidia GTX750 with only 1GB of VRAM.
 
 \section{Related Work}
 \subsection{Reversibility}
@@ -452,7 +453,7 @@ M_{z}' &= \sum_{i \in P} p_i \times c_i \times bpe
 The memory footprint of the weights is given by:
 
 \begin{equation}
- M_{\theta} &= \sum_{i \in P}  n(\theta_i)\times bpe 
+ M_{\theta} = \sum_{i \in P}  n(\theta_i)\times bpe 
 \end{equation}
 
 % Introduce memory cost per pixel
@@ -657,7 +658,7 @@ Using the above formulation, the SNR reduction factor $\alpha$ can be expressed 
 \end{align}
 \end{subequations}
 
-Figure 5 shows the expected evolution of $\alpha$ through our toy layer for different values of the factor $\pho$.
+Figure 5 shows the expected evolution of $\alpha$ through our toy layer for different values of the factor $\rho$.
 To validate our formula, we emperically evaluate $\alpha$ for normal Gaussian inputs $x$ and output noise $\epsilon^y$ and find it to closely match the theoretical results given by equation 19. 
 
 In essence, numerical instabilities in the inverse computation of the batch normalization layer arise
@@ -913,7 +914,7 @@ yet small enough to enable us to rapidly iterate over different architectural de
 We start by analysing numerical errors arising in layer-wise invertible and hybrid architectures, 
 and outline their impact on accuracy.
 This analysis motivates our choice of architecture and hyperparameter.
-We then summarize the benefits and drawbacks of our proposed architecture in comparison to several reversible baselines.
+We then summarize the benefits and drawbacks of our proposed architecture in comparison to different baseline architectures.
 
 \subsection{Impact of Numerical stability}
 
@@ -921,20 +922,20 @@ We then summarize the benefits and drawbacks of our proposed architecture in com
 
 In this section, we quantify the accumulation of numerical errors in layer-wise invertible architectures and analyze their impact on the accuracy.
 The architecture of these models is illustrated in Figure 7.
-We investigate the evolution of numerical errors, and their impact on accuracy, for networks of different depth and different hyper-parameters.
-Figure 10 illustrates the degradation of the signal-to-noise ration along the layers of one such model. 
+We investigate the evolution of numerical errors, and their impact on accuracy, for networks of different depth and different hyper-parameter values.
+Figure 10 illustrates the degradation of the signal-to-noise ration along the layers of one such model.
+
 We found the two most impacting parameters to be the depth $N$ of the network and the negative slope $n$ of the activation function.
 Figure 11 shows the evolution of the numerical errors with both of these parameters.
 
 Next, we investigate the impact of numerical errors on the accuracy.
-In order to isolate the impact of the numerical errors on the accuracy, 
-we compare the accuracy reached by the same architecture with noisy activations and noiseless ideal activations.
-The results of the ideal reconstructions were obtained by storing the activation values during the forward pass,
-without noisy reconstruction through inverse operations. 
+In order to isolate the impact of the numerical errors, 
+we compare the accuracy reached by the same architecture with and without inverse reconstruction of the hidden layers activations.
+Without reconstruction, the hidden activation values are stored along the forward pass and the gradient updates are computed from the true, 
+noiseless activation values, so that the only difference between both settings is the noise introduced by the inverse reconstructions.
+
 In Figure 12, we compare the evolution of the accuracy in both settings for different depth and negative slopes.
-
 For small depths (or high negative slopes), in which the numerical errors are minimum, both models yield similar accuracy.
-
 However, as the numerical errors grow, the accuracy of the model goes down, 
 while the accuracy of the ideal baseline keeps increasing,
 which can be seen with both depth and negative slopes.
@@ -959,16 +960,16 @@ confirming that the numerical stability brought by the hybrid architecture effec
 
 \subsection{Model comparison}
 
-Table 1 summarizes our main result.
+Table 1 summarizes our main results.
 In this table, we compare architectures with different patterns of reversibility.
 To allow for a fair comparison, we have tweaked each architecture to keep the number of parameters as close as possible,
 with the notable exception of the i-RevNet architecture. 
-The i-Revnet pooling design enforces a quadratic growth of its parameters with each level of pooling.
+The i-Revnet pooling scheme enforces a quadratic growth of its parameters with each level of pooling.
 In order to keep the number of parameters of the i-RevNet close to the other baselines, we would have to drastically 
-the number of channels of lower layers, which we found poor performance. 
-Furthermore, it should be noticed that the i-RevNet architecture we present slightly differs from the original i-Revnet model
+reduce the number of channels of lower layers, which we found yield poor performance. 
+Furthermore, it should be noted that the i-RevNet architecture we present slightly differs from the original i-Revnet model
 as our implementation uses RevNet-like reversible modules with one module per channel split for similarity with
-the other architecture we evalutate instead of the signle module used in the original architecture.
+the other architecture we evalutate instead of the single module used in the original architecture.
 
 All models were trained for 50 epochs of stochastic gradient descent with cyclical learning rate and momentum \cite{smith2017super} with minimal image augmentation.
 
@@ -976,44 +977,41 @@ All models were trained for 50 epochs of stochastic gradient descent with cyclic
 \begin{tabular}{ c c c c c c c c}	
 Model     & Accuracy & \#Params & Channels & Pooling  & $M_{\theta}$ & $M_{z}'$ & $\mathcal{M} $ \\
 \hline
-Resnet    & 94.7   & $3.1M$   &  $32 - 64 - 128  - 256$       & Max Pooling      				         &  $12.4M$   &  1928  & $3.4G$  \\			
-RevNet    & 94.5   & $3.1M$   &  $40 - 80 - 256  - 320$       & Max Pooling      				         &  $12.4M$   &  640   & $348M$  \\
-i-RevNet  & 93.8   & $42.8M$  &  $32 - 128 - 512 - 2048$      & $\mathcal{P}_c - \mathcal{P}_c - \mathcal{P}_c$          &  $171M$    &  640   & $500M$  \\
-Ours      & 93.1   & $3.7M$   &  $32 - 128 - 512 - 512$       & $[\mathcal{P}_c, \mathcal{P}_c, \mathcal{P}_b]$          &  $14.8M$   &  352   & $200M$  \\
+Resnet    & $94.7$   & $3.1M$   &  $32 - 64 - 128  - 256$       & Max Pooling      				           &  $12.4M$   &  $1928$  & $1.01G$  \\			
+RevNet    & $94.5$   & $3.1M$   &  $40 - 80 - 256  - 320$       & Max Pooling      				           &  $12.4M$   &  $640$   & $348M$   \\
+i-RevNet  & $93.8$   & $42.8M$  &  $32 - 128 - 512 - 2048$      & $\mathcal{P}_c - \mathcal{P}_c - \mathcal{P}_c$          &  $171M$    &  $640$   & $500M$   \\
+Ours      & $93.3$   & $3.7M$   &  $32 - 128 - 512 - 512$       & $[\mathcal{P}_c, \mathcal{P}_c, \mathcal{P}_b]$          &  $14.8M$   &  $352$   & $200M$   \\
 \hline
 \end{tabular}
+\begin{center}
 \caption{Summary of architectures with different levels of reversibility}
+\end{center}
 \end{table*}
 
-The ResNet and RevNet models perform on par.
-As noted in the original paper, RevNet allows for a memory reduction at the cost of
-a small computational cost overhead.
-At parameter constants, the i-RevNet performs worse than.
-
-Our proposed architecture is summarized in Table 1.
+The parameters of our proposed architecture are given in Table 1.
 This architecture was selected as the best performing architecture 
 from an extensive architecture search on a constrained weight budget. 
-compared to other architectures, our model drastically cuts the memory cost of training.
-Compared to the original ResNet architecture, these drastic memory cuts come at the cost of 
-both a small degradation in accuracy.
+Compared to the original ResNet architecture, our model drastically cuts the memory cost of training.
+These drastic memory cuts come at the cost of a small degradation in accuracy.
 
 \begin{table}[h]
+\centering
 \begin{tabular}{ c c c c}	
  GPU & Time & Accuracy \\
 \hline			
-GTX750     & 93.1  & 35 min.    \\
-GTX 1080Ti & 93.1  & 67 min.  \\
+GTX750     & $93.3$  & $35 min.$    \\
+GTX 1080Ti & $93.3$  & $67 min.$  \\
 \hline
 \end{tabular}
 \caption{Training statistics on different hardware}
 \end{table}
 
 Furthermore, our hybrid architecture requires the computational equivalent of two additional forward passes within each backward pass.
-The computational complexity, however, remains reasonable. 
-In Table 2, we compare the time of training our proposed architecture to 94\% on a high-end Nvidia GTX 1080Ti and a low-end
+The computational complexity, however, remains reasonable:
+In Table 2, we compare the time of training our proposed architecture to 93.3\% on a high-end Nvidia GTX 1080Ti and a low-end
 Nvidia GTX750.
 The GTX750 only has 1GB of VRAM, which results in roughly 400MB of available memory after the initialization of various frameworks.
-Training a vanilla ResNet on such limited memory resources is impossible, while our architecture allows for efficient training. 
+Training a vanilla ResNet with large batch sizes on such limited memory resources is impractical, while our architecture allows for efficient training. 
 
 \section{Conclusion}
 
@@ -1023,7 +1021,7 @@ While tremendous efforts have been put into the optimization of the inference st
 relatively little work have focused on algorithmic solutions for limited resource training. 
 In this paper, we have presented an architecture able to yield high accuracy classifications within very tight memory constraints.
 We highlighted several potential applications of memory-efficient training procedures, such as on-device training,
-and illustrated the efficiency of our approach by training a CNN to 93\% accuracy on a low-end GPU with only 1GB of memory.
+and illustrated the efficiency of our approach by training a CNN to 93.3\% accuracy on a low-end GPU with only 1GB of memory.
 
 \section*{Abreviation}
 
@@ -1049,7 +1047,8 @@ A part of this study is subsidized by JSPS Grant-in-Aid for Scientific Research 
 This work was supported in part by PRESTO, JST (Grant No. JPMJPR15D2).
 
 \section*{Acknowledgements}
-At the time of this writing, the only contributors to the content of this work are the authors. We would be happy to thank reviewers for useful feedbacks.
+At the time of this writing, the only contributors to the content of this work are the authors. 
+We would be happy to thank reviewers for useful feedbacks.
 
 \bibliographystyle{bmc-mathphys}
 \bibliography{bmc_article}
@@ -1064,7 +1063,7 @@ Modules contributing to the peak memory consumption are shown in red.
 These modules contribute to the memory cost by storing their input in memory.
 The green annotation represents the extra memory cost of storing the gradient in memory.
 The peak memory consumption happens in the backward pass through the last convolution so that this layer is annotated with an additional gradient memory cost.
-At this step of the computation, all upstream parameterized layers have stored their input in memory, which constitutes the memory bottleneck.  
+At this step of the computation, all lower parameterized layers have stored their input in memory, which constitutes the memory bottleneck.  
 }
 \end{figure}
 
@@ -1072,14 +1071,14 @@ At this step of the computation, all upstream parameterized layers have stored t
 \includegraphics{Figure2.png}
 \caption{
 Illustration of the backpropagation process through a reversible block.
-In the forward pass, activations are propagated forward from top to bottom.
+In the forward pass (left), activations are propagated forward from top to bottom.
 The activations are not kept in live memory as they are to be recomputed in the backward pass so no memory bottleneck occurs.
-During the backward pass, hidden and input activations first need to be recomputed from the output for the gradient weight computations.
-The reconstruction occurs through an additional forward pass through both modules. 
-Once the activations recomputed, the activations gradient are propagated backward through both modules of the reversible blocks.
-Because the activation computations are computed by a forward pass through the module and the gradients are propagated backward therough the module,
-both computations cannot be overlapped.
-This creates the local memory bottleneck of storing all hidden activations within the reversible block before the gradient backpropagation.
+The backward pass is made of two phases: 
+First the hidden and input activations are recomputed from the output through an additional forward pass through both modules (middle).
+Once the activations recomputed, the activations gradient are propagated backward through both modules of the reversible blocks (right).
+Because the activation and gradient computations flow in opposite directions through both modules,
+both computations cannot be efficiently overlapped, which results in the local memory bottleneck of 
+storing all hidden activations within the reversible block before the gradient backpropagation step.
 }
 \end{figure}
 
@@ -1088,11 +1087,8 @@ This creates the local memory bottleneck of storing all hidden activations withi
 \caption{
 Illustration of the Revnet architecture and its memory consumption.
 Modules contributing to the peak memory consumption are shown in red.
-The global memory bottleneck is caused bythe irreversible pooling operations.
-These layers must store their input in memory for the inversecomputations of lower layers.
-The peak memory consumption happens during the backward pass through the top reversible block.
-At this step of the computations, all hidden activations of the reversible block are stored in memory,
-adding a local memory bottleneck to the global bottleneck of pooling layers.
+The peak memory consumption happens during the backward pass through the first reversible block.
+At this step of the computations, all hidden activations within the reversible block are stored in memory simulateously.
 }
 \end{figure}
 
@@ -1100,9 +1096,9 @@ adding a local memory bottleneck to the global bottleneck of pooling layers.
 \includegraphics{Figure4.png}
 \caption{
 Illustration of the i-Revnet architecture and its memory consumption.
-i-Revnet eliminates the global memory bottleneck of the Revnet architecture.
 The peak memory consumption happens during the backward pass through the top reversible block.
-However, the cost of storing the top layers weights (in orange) becomes a new memory bottleneck as the 
+In addition to this local memory bottleneck, the cost of storing the top layers weights 
+(in orange) becomes a new memory bottleneck as the 
 weight kernel size grows quadratically in the number of channels.
 }
 \end{figure}
@@ -1114,8 +1110,8 @@ weight kernel size grows quadratically in the number of channels.
 Illustration of the numerical errors arising from batch normalization layers.
 (Left) Comparison of the theoretical and empricial evolution of the $\alpha$ ratio for different $\rho$ values in our toy example.
 Emrpirical values were computed for a Gaussian input signal with zero mean and standard deviation 1 and a white gaussian noise of standard deviation $10^{-5}$.
-(Right) Comparison of the theoretical and empricial evolution of the $\alpha$ ratio for different $\rho$ values for arbitrarily parameterized layers.
-Emrpirical values were computed for a Gaussian input signal with random mean and standard deviation for a white gaussian noise of standard deviation $10^{-5}$.
+(Right) Comparison of the theoretical and empricial evolution of the $\alpha$ ratio for different for arbitrarily parameterized layers.
+Emrpirical values were computed for random Gaussian input signal and a white gaussian noise of standard deviation $10^{-5}$.
 }
 \end{figure}
 
@@ -1144,59 +1140,86 @@ Illustration of a hybrid architecture and its peak memory consumption.
 \begin{figure}[t]
 \includegraphics{Figure9.png}
 \caption{
-Evolution of the SNR through the layers of a layer-wise invertible model.
-Two consecutive convolutional blocks (Convolution-normalization-activation layers) are illustrated in color boxes.
-The SNR gets continuously degraded throughout each layer of the network, resulting in numerical instabilities.
+Illustration of the backpropagation process through a reversible block of our proposed hybrid architecture.
+In the forward pass (left), activations are propagated forward from top to bottom.
+The activations are not kept in live memory as they are to be recomputed in the backward pass so that no memory bottleneck occurs.
+The backward pass is made of two phases: 
+First the input activations are recomputed from the output using the Reversible block analytical inverse (middle).
+This step allows to reconstruct the input activations with minimal reconstruction error.
+During this step, hidden activations are not kept in live memory so as to avoid the local memory bottleneck of the reversible block.
+Once the input activation recomputed, the gradients are propagated backward through both modules of the reversible blocks (right).
+During this second phase, hidden activations are recomputed backward through each module using the layer-wise inverse operations, yielding minimal memory footprint
 }
 \end{figure}
+
 
 \begin{figure}[t]
 \includegraphics{Figure10.png}
 \caption{
-Numerical errors and accuracy of a layer-wise invertible model. XXX
+Evolution of the SNR through the layers of a layer-wise invertible model.
+Color boxes illustrate the span of two consecutive convolutional blocks (Convolution-normalization-activation layers).
+The SNR gets continuously degraded throughout each block of the network, resulting in numerical instabilities.
 }
 \end{figure}
 
 \begin{figure}[t]
 \includegraphics{Figure11.png}
 \caption{
-Accuracy of a layer-wise invertible model. XXX
+Illustration of the impact of depth (in number of layers $N$) and negative slope $n$ on the numerical errors.
+Both figure shows the evolution of the SNR at the lowest layer of a layer-wise invertible network with increasing depth and negative slopes.
+The lower the SNR is, the more  important numerical errors of the inverse reconstructions are. 
+(Left): The SNR decreases exponentially with depth until it reaches an SNR value of 1. 
+At this point, the noise is of the same scale as the signal, and no learning can happen.
+These results were computed with a negative slope of $n=2$
+(Right) This figure shows the evolution of the SNR with different negative slopes $n$ for a layer-wise reversible model of depth 3.
+On a log-log scale, this figure shows an almost linear relationship between negative slope and SNR.
+It is impressive that with only three layer depth, a negative slope of $n=10^{-3}$ reaches a SNR superior to 1.
+With such parameterization, even the most shallow models are not capable of learning.
 }
 \end{figure}
 
 \begin{figure}[t]
 \includegraphics{Figure12.png}
 \caption{
-Evolution of the SNR through the layers of a hybrid architecture model.
-Within reversible blocks, the SNR quickly degrades due to the numerical errors introdcuces by invertible layers.
-However, the signal propagated to the input of each reversible block is recomputed using the reversible block inverse, which is much more stable.
-Hence, we can see a sharp decline of the SNR within the reversible blocks, but the SNR almost raises back to its original level at the input of each reversible block. 
+Impact of the numerical errors on the accuracy of layer-wise invertible models.
+(Left): Evolution of a 6-layer model accuracy with and without inverse reconstructions with the negative slope.
+Without reconstruction, the model accuracy benefits from smaller negative slopes.
+With inverse reconstructions, the model similarly benefits from smaller negative slopes as $n$ decreases from $1$ to $0.1$.
+For smaller negative slopes, however, the accuracy sharply decreases toward lower values due to numerical errors.
+(Right) Evolution of the accuracy with depth for a negative slope $n=0.2$ with and without inverse reconstructions.
+Without reconstruction, the model accuracy benefits from depth.
+With inverse reconstructions, the model similarly benefits from depth as the number of layers grow from $3$ to $7$.
+For $N>7$, however, the accuracy sharply decreases toward lower values due to numerical errors.
 }
 \end{figure}
-
 
 \begin{figure}[t]
 \includegraphics{Figure13.png}
 \caption{
 Evolution of the SNR through the layers of a hybrid architecture model.
-Two consecutive reversible blocks are shown with color boxes.
+The span of two consecutive reversible blocks are shown with color boxes.
 Within reversible blocks, the SNR quickly degrades due to the numerical errors introdcuces by invertible layers.
 However, the signal propagated to the input of each reversible block is recomputed using the reversible block inverse, which is much more stable.
 Hence, we can see a sharp decline of the SNR within the reversible blocks, but the SNR almost raises back to its original level at the input of each reversible block. 
 }
 \end{figure}
 
+
 \begin{figure}[t]
-\includegraphics{Figure10.png}
+\includegraphics{Figure14.png}
 \caption{
-Numerical errors and accuracy of a hybrid model. XXX
+Illustration of the impact of depth (in number of layers $N$) and negative slope $n$ on the numerical errors.
+Both figure shows the evolution of the SNR at the lowest layer of our hybriud architecture with increasing depth and negative slopes.
+Our hybrid architecture greatly reduce the impact of both depth and negative slopes on the numerical errors
 }
 \end{figure}
 
 \begin{figure}[t]
-\includegraphics{Figure11.png}
+\includegraphics{Figure15.png}
 \caption{
-Accuracy of a hybrid model. XXX
+Impact of the numerical errors on the accuracy of layer-wise invertible models.
+Our proposed hybrid architecture greatly stabilizes the numerical errors,
+which results in smaller effects of the depth and negative slope on accuracy. 
 }
 \end{figure}
 
