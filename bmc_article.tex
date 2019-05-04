@@ -258,7 +258,7 @@ We can think of several potential applications of on-device training, including:
 \begin{itemize}
  \item Life-long learning: Autonomous systems deployed in evolving environments like drones, robots or sensor networks might benefit from continuous life-long learning to adapt to their changing environment.
 On-device training would enable such application without the expensive communication burden of having edge devices continuously sending their data to remote servers over the network. It would also provide resilience to network failures in critical application scenarios.
- \item In privacy-critical applications such as biometric mobile phone authentification, users might not want to have their data sent over the network. 
+ \item In privacy-critical applications such as biometric mobile phone authentication, users might not want to have their data sent over the network. 
 On-device training would allow fine-tuning recognition models on local data without sending sensitive data over the network.
 \end{itemize}
 In this work, we propose an architecture with minimal training memory cost requirements which enables training within the tight memory constraints of embedded devices. 
@@ -267,7 +267,7 @@ In this work, we propose an architecture with minimal training memory cost requi
 \textbf{Research in optimization:}
 Recent works on stochastic optimization algorithms have highlighted the benefits of large batch training \cite{shallue2018measuring,largebatch}.
 For example, in Imagenet, linear speed-ups in training have been observed with increasing batch sizes up to tens of thousands of samples \cite{largebatch}.
-Optimizing the memory cost of CNN training may allow further research on the optimization tradeoffs of large batch training.
+Optimizing the memory cost of CNN training may allow further research on the optimization trade-offs of large batch training.
 For small datasets like MNIST or CIFAR10, we are able to process the full dataset in 14 and 18 GB of memory respectively.
 Although large batch training on such small dataset is very computationally inefficient with current stochastic optimization algorithms \cite{largebatch},
 the ability to process the full dataset in one pass allows to easily train CNNs on the true gradient of the error.
@@ -482,7 +482,7 @@ For a ResNet parameterized following Table 1, the peak memory consumption can th
 For example, a training iteration over a typical batch of 32 images of resolution $240 \times 240$ 
 requires 12.5 MB of memory to store the model weights and 3.8 GB of memory to store the hidden layers activations and gradients
 for a total of $\mathcal{M}=3.81$ GB of VRAM.
-The memory cost of the hidden activations is thus the main memory bottleneck of CNN training as the cost assoiated with 
+The memory cost of the hidden activations is thus the main memory bottleneck of CNN training as the cost associated with 
 the model weights is negligible in comparison.
 
 \subsection{RevNet}
@@ -659,7 +659,7 @@ Using the above formulation, the SNR reduction factor $\alpha$ can be expressed 
 \end{subequations}
 
 Figure 5 shows the expected evolution of $\alpha$ through our toy layer for different values of the factor $\rho$.
-To validate our formula, we emperically evaluate $\alpha$ for normal Gaussian inputs $x$ and output noise $\epsilon^y$ and find it to closely match the theoretical results given by equation 19. 
+To validate our formula, we empirically evaluate $\alpha$ for normal Gaussian inputs $x$ and output noise $\epsilon^y$ and find it to closely match the theoretical results given by equation 19. 
 
 In essence, numerical instabilities in the inverse computation of the batch normalization layer arise
 from the fact that the signal across different channels $i$ and $j$ are amplified by different factors $\gamma_i$ and $\gamma_j$.
@@ -705,7 +705,7 @@ $\hat{x_i}$ and $\dot{x_i}$ respectively, the formula for the SNR reduction fact
 %The full proof of this formula is given in the appendix and follows the same reasoning as for the toy parametrization. 
 %The only assumption made by this proof is that both the input $x$ and output noise $\epsilon^y$ are identically distributed across all channels, which we found to hold true in practice. 
 We verify the validity of equation (22c) by empirically evaluating the different $\alpha$ ratio yielded by randomly initialized batch normalization layers with input values and output noise randomly drawn from Gaussian distribution.  
-Figure 5 plots the emprically found $\alpha$ values against the theoretical values predicted by our formula and show a close match. 
+Figure 5 plots the empirically found $\alpha$ values against the theoretical values predicted by our formula and show a close match. 
 
 Finally, we propose the following modification, introducing the hyperparameter $\epsilon_i$, to the invertible batch normalization layer:
 
@@ -744,7 +744,7 @@ one channel leaving the output unchanged and one channel that divides the input 
 
 However, these artificial channels are defined by the sign of the input and output during the forward and backward pass respectively.
 Hence, we need to consider the cases in which the noise flips the sign of the output activations, 
-which leads to different behaviour of the invertible Leaky ReLU across four cases: 
+which leads to different behaviors of the invertible Leaky ReLU across four cases: 
 
 \begin{subequations}
 \begin{align}
@@ -799,7 +799,7 @@ Using the above formulation, the signal to noise ration reduction factor $\alpha
 
 Hence numerical errors can be controlled by setting the value of the negative slope $n$.
 As $n$ tends towards $1$, $\alpha$ converges to $1$, yielding minimum signal degradation.
-However, as $n$ tends towards $1$, the network tends toward a linear behaviour, which hurts the model expressivity. 
+However, as $n$ tends towards $1$, the network tends toward a linear behavior, which hurts the model expressivity. 
 Figure 6 shows the evolution of the SNR degradation $\alpha$ for different negative slopes $n$; 
 and, in Section 5.1, we investigate the impact of the negative slope parameter on the model accuracy.
 
@@ -911,7 +911,7 @@ during the backward pass.
 We use the CIFAR10 dataset as a benchmark for our experiments.
 The CIFAR10 dataset is complex enough to require efficient architectures to reach high accuracy, 
 yet small enough to enable us to rapidly iterate over different architectural designs.
-We start by analysing numerical errors arising in layer-wise invertible and hybrid architectures, 
+We start by analyzing numerical errors arising in layer-wise invertible and hybrid architectures, 
 and outline their impact on accuracy.
 This analysis motivates our choice of architecture and hyperparameter.
 We then summarize the benefits and drawbacks of our proposed architecture in comparison to different baseline architectures.
@@ -969,7 +969,7 @@ In order to keep the number of parameters of the i-RevNet close to the other bas
 reduce the number of channels of lower layers, which we found yield poor performance. 
 Furthermore, it should be noted that the i-RevNet architecture we present slightly differs from the original i-Revnet model
 as our implementation uses RevNet-like reversible modules with one module per channel split for similarity with
-the other architecture we evalutate instead of the single module used in the original architecture.
+the other architecture we evaluate instead of the single module used in the original architecture.
 
 All models were trained for 50 epochs of stochastic gradient descent with cyclical learning rate and momentum \cite{smith2017super} with minimal image augmentation.
 
@@ -1048,7 +1048,7 @@ This work was supported in part by PRESTO, JST (Grant No. JPMJPR15D2).
 
 \section*{Acknowledgements}
 At the time of this writing, the only contributors to the content of this work are the authors. 
-We would be happy to thank reviewers for useful feedbacks.
+We would be happy to thank reviewers for useful feedback.
 
 \bibliographystyle{bmc-mathphys}
 \bibliography{bmc_article}
@@ -1108,10 +1108,10 @@ weight kernel size grows quadratically in the number of channels.
 \includegraphics{Figure5.png}
 \caption{
 Illustration of the numerical errors arising from batch normalization layers.
-(Left) Comparison of the theoretical and empricial evolution of the $\alpha$ ratio for different $\rho$ values in our toy example.
-Emrpirical values were computed for a Gaussian input signal with zero mean and standard deviation 1 and a white gaussian noise of standard deviation $10^{-5}$.
-(Right) Comparison of the theoretical and empricial evolution of the $\alpha$ ratio for different for arbitrarily parameterized layers.
-Emrpirical values were computed for random Gaussian input signal and a white gaussian noise of standard deviation $10^{-5}$.
+(Left) Comparison of the theoretical and empirical evolution of the $\alpha$ ratio for different $\rho$ values in our toy example.
+Empirical values were computed for a Gaussian input signal with zero mean and standard deviation 1 and a white Gaussian noise of standard deviation $10^{-5}$.
+(Right) Comparison of the theoretical and empirical evolution of the $\alpha$ ratio for different for arbitrarily parameterized layers.
+Empirical values were computed for random Gaussian input signal and a white Gaussian noise of standard deviation $10^{-5}$.
 }
 \end{figure}
 
@@ -1119,8 +1119,8 @@ Emrpirical values were computed for random Gaussian input signal and a white gau
 \includegraphics{Figure6.png}
 \caption{
 Illustration of the numerical errors arising from invertible activation layers.
-Comparison of the theoretical and empricial evolution of the $\alpha$ ratio for different negative slopes $n$.
-Emrpirical values were computed for a Gaussian input signal with zero mean and standard deviation 1 and a white gaussian noise of standard deviation $10^{-5}$.
+Comparison of the theoretical and empirical evolution of the $\alpha$ ratio for different negative slopes $n$.
+Empirical values were computed for a Gaussian input signal with zero mean and standard deviation 1 and a white Gaussian noise of standard deviation $10^{-5}$.
 }
 \end{figure}
 \begin{figure}[t]
@@ -1198,7 +1198,7 @@ For $N>7$, however, the accuracy sharply decreases toward lower values due to nu
 \caption{
 Evolution of the SNR through the layers of a hybrid architecture model.
 The span of two consecutive reversible blocks are shown with color boxes.
-Within reversible blocks, the SNR quickly degrades due to the numerical errors introdcuces by invertible layers.
+Within reversible blocks, the SNR quickly degrades due to the numerical errors introduced by invertible layers.
 However, the signal propagated to the input of each reversible block is recomputed using the reversible block inverse, which is much more stable.
 Hence, we can see a sharp decline of the SNR within the reversible blocks, but the SNR almost raises back to its original level at the input of each reversible block. 
 }
@@ -1209,7 +1209,7 @@ Hence, we can see a sharp decline of the SNR within the reversible blocks, but t
 \includegraphics{Figure14.png}
 \caption{
 Illustration of the impact of depth (in number of layers $N$) and negative slope $n$ on the numerical errors.
-Both figure shows the evolution of the SNR at the lowest layer of our hybriud architecture with increasing depth and negative slopes.
+Both figure shows the evolution of the SNR at the lowest layer of our hybrid architecture with increasing depth and negative slopes.
 Our hybrid architecture greatly reduce the impact of both depth and negative slopes on the numerical errors
 }
 \end{figure}
