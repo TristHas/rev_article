@@ -361,7 +361,7 @@ Let us consider a model $F$ made of $N$ sequential layers trained to minimize th
  \begin{subequations}
  	\begin{align}
  	F &: x \rightarrow y \\
- 	F &: x \rightarrow f_N \circ ... \circ f_2 \circ f_1(x) \\
+ 	y &= f_N \circ ... \circ f_2 \circ f_1(x) \\
  	e &=  \mathcal{L}(y, \bar{y})
  	\end{align}
  \end{subequations}
@@ -382,7 +382,7 @@ In vanilla SGD, for a given learning rate $\eta$, the weight gradients are subse
 
 \begin{subequations}
 \begin{align}
-\frac{\delta \mathcal{L}}{\delta \theta_i} & =\frac{\delta \mathcal{L}}{\delta z_{i}}  \times \frac{\delta z_{i}}{\theta_i} \\
+\frac{\delta \mathcal{L}}{\delta \theta_i} & =\frac{\delta \mathcal{L}}{\delta z_{i}}  \times \frac{\delta z_{i}}{\delta \theta_i} \\
 \theta_i & \leftarrow \theta_i - \eta \times \frac{\delta \mathcal{L}}{\delta \theta_i}
 \end{align}
 \end{subequations}
@@ -406,8 +406,9 @@ In such architectures, activation do not need to be kept in memory during the fo
 
 \subsection{Memory footprint}
 
-We denote the memory footprint of training a neural network as a value $\mathcal{M}$ in bytes. Given an input $x$ and ground truth label $\bar{y}$, the memory footprint represents the peak memory consumption during an iteration of training including the forward and backward pass.
-We divide the total training memory footprint $\mathcal{M}$ into several memory cost factors: the cost of storing the model weights, the hidden activations, and the gradients:
+We denote the memory footprint of training a neural network as a value $\mathcal{M}$ in bytes. 
+Given an input $x$ and ground truth label $\bar{y}$, the memory footprint represents the peak memory consumption during an iteration of training including the forward and backward pass.
+We divide the total training memory footprint $\mathcal{M}$ into several memory cost factors: the cost $M_{\theta}$ of storing the model weights, the hidden activations  $M_{z}$, and the gradients $M_{g}$:
 
 \begin{equation}
 \mathcal{M} = M_{\theta} + M_{z} + M_{g}
@@ -434,7 +435,7 @@ The memory cost associated with storing the hidden activation values is given by
 \begin{subequations}
 \begin{align}
 M_{z} &= \sum_{i \in P} n(z_i) \times bpe \\
-M_{z} &= \sum_{i \in P} bs \times c_i \times h_i \times w_i \times bpe 
+      &= \sum_{i \in P} bs \times c_i \times h_i \times w_i \times bpe 
 \end{align}
 \end{subequations}
 
@@ -444,9 +445,9 @@ $h_i$ and $w_i$ are determined by the input image size $h \times w$ and the pool
 \begin{subequations}
 \begin{align}
 M_{z} &= \sum_{i \in P} bs \times h \times w \times p_i \times c_i \times bpe \\
-M_{z} &= bs \times h \times w \times \sum_{i \in P} p_i \times c_i \times bpe \\
-M_{z}' &= M_{z} / (bs \times h \times w)  \\ß
-M_{z}' &= \sum_{i \in P} p_i \times c_i \times bpe 
+      &= bs \times h \times w \times \sum_{i \in P} p_i \times c_i \times bpe \\
+M_{z}' &= \frac{M_{z}}{bs \times h \times w}  \\
+       &= \sum_{i \in P} p_i \times c_i \times bpe 
 \end{align}
 \end{subequations}
 
@@ -463,8 +464,8 @@ Hence, the memory footprint of the gradients correspond to the memory cost of st
 \begin{subequations}
 \begin{align}
 M_{g}  &= max(n(g_{i-1}), n(g_i)) \times bpe \\
-M_{g}  &= h \times w \times bs \times p_i \times max(c_{i-1}, c_i) \\
-M_{g}' &= p_i \times max(c_{i-1}, c_i)
+       &= h \times w \times bs \times p_i \times max(c_{i-1}, c_i) \times bpe\\
+M_{g}' &= p_i \times max(c_{i-1}, c_i) \times bpe
 \end{align}
 \end{subequations}
 
@@ -474,8 +475,8 @@ For a ResNet parameterized following Table 1, the peak memory consumption can th
 \begin{subequations}
 \begin{align}
 \mathcal{M} &= M_{\theta} + M_{z} + M_{g} \\
-\mathcal{M} &= (M_{\theta} + (M_{z}' + M_{g}') \times (h \times w \times bs)) \times bpe \\
-\mathcal{M} &= (12.5*10^6 + 1928 \times (h \times w \times bs)) \\ 
+            &= M_{\theta} + (M_{z}' + M_{g}') \times (h \times w \times bs) \\
+            &= 12.5*10^6 + 1928 \times (h \times w \times bs) \\ 
 \end{align}
 \end{subequations}
 
@@ -520,8 +521,8 @@ For the architecture described in Table 1, the peak memory consumption can be co
 \begin{subequations}
 \begin{align}
 \mathcal{M} &= M_{\theta} + M_{z} + M_{g} \\
-\mathcal{M} &= (M_{\theta} + (M_z' + M_{g}') \times (h \times w \times bs)) \times bpe \\
-\mathcal{M} &= (12.7 \times 10^6 + 640 \times (h \times w \times bs)) \\
+            &=(M_{\theta} + (M_z' + M_{g}') \times (h \times w \times bs) \\
+            &= 12.7 \times 10^6 + 640 \times (h \times w \times bs) 
 \end{align}
 \end{subequations}
 
@@ -545,7 +546,7 @@ Unfortunately, the size of a volume-preserving convolution kernel grows quadrati
 \begin{subequations}
 \begin{align}
 M(\theta) &= c_{in} \times c_{out} \times k_h \times k_w \\
-M(\theta) &= c^2 \times k_h \times k_w
+          &= c^2 \times k_h \times k_w
 \end{align}
 \end{subequations}
 
@@ -560,8 +561,8 @@ For an initial channel size of 32, as summarized in Table 1, the peak memory con
 \begin{subequations}
 \begin{align}
 \mathcal{M} &= M_{\theta} + M_{z} + M_{g} \\
-\mathcal{M} &= (M_{\theta} + (M_z' + M_{g}') \times (h \times w \times bs)) \times bpe \\
-\mathcal{M} &= (171 \times 10^6 + 640 \times (h \times w \times bs)) \\
+            &= M_{\theta} + (M_z' + M_{g}') \times (h \times w \times bs) \\
+            &= 171 \times 10^6 + 640 \times (h \times w \times bs) 
 \end{align}
 \end{subequations}
 
@@ -595,7 +596,7 @@ x = f^{-1}(y, \hat{x}, \dot{x}) &= (\sqrt{\dot{x}} + \epsilon) \times \frac{y - 
 \end{align}
 \end{subequations}
 
-Where $\hat{x}$ and $\dot{x}$ represent the mean and standard deviation of $x$ respectively.
+Where $\hat{x}$ and $\dot{x}$ represent the mean and variance of $x$ respectively.
 Hence, the input activation $x$ can be recovered from $y$ through $f^{-1}$ at the minimal memory cost of storing the input activation statistics $\hat{x}$ and $\dot{x}$.
 
 Let us consider the accumulation of numerical errors arising from the inverse computation of an invertible batch normalization layer.
@@ -624,27 +625,30 @@ with zero mean and standard deviation 1 so that, in the forward pass, we have:
 \begin{subequations}
 \begin{align}
  y =& [y_0, y_1] \\
- y =& [x_0, x_1 \times \rho] \\
- |y|^2 =& |x_0|^2 + |x_1|^2 \times \rho^2 \\
- |y|^2 =& \frac{1}{2} \times |x|^2 + \frac{1}{2} \times |x|^2 \times \rho^2 \\
- |y|^2 =&\frac{|x|^2}{2} \times (1+\rho^2)
+   =& [x_0, x_1 \times \rho] \\
+|y|^2 =& |x_0|^2 + |x_1|^2 \times \rho^2 \\
+      =& \frac{1}{2} \times |x|^2 + \frac{1}{2} \times |x|^2 \times \rho^2 \\
+      =& \frac{|x|^2}{2} \times (1+\rho^2)
 \end{align}
 \end{subequations}
 
+In which we used the assumption that $x$ is independently and identically distributed across both channels
+to factorize $|x_0|^2 = |x_1|^2 = \frac{1}{2} \times |x|^2$ in equation (17d).
+ 
 During the backward pass, the noisy estimate $\tilde{y}=y+\epsilon^y$ is fed back as input to the inverse operation. 
 Similarly, let us suppose a noise $\epsilon^y$ identically distributed across both channels so that we have:
 
 \begin{subequations}
 \begin{align}
 \tilde{y}       =& [ \tilde{y}_0, \tilde{y}_1 ] \\
-\tilde{y}       =& [ x_0 + \epsilon_0^y, x_1 \times \rho + \epsilon_1^y ] \\
+                =& [ x_0 + \epsilon_0^y, x_1 \times \rho + \epsilon_1^y ] \\
 \tilde{x}       =& [ \tilde{y}_0, \frac{\tilde{y}_1}{\rho}] \\
-\tilde{x}       =& [ x_0 + \epsilon_{0}^y, x_1 + \frac{\epsilon_{1}^y}{\rho} ]\\
+                =& [ x_0 + \epsilon_{0}^y, x_1 + \frac{\epsilon_{1}^y}{\rho} ]\\
 \epsilon^x      =& \tilde{x} - x\\
-\epsilon^x      =& [ \epsilon_0^y, \frac{\epsilon_{1}^y}{\rho} ]\\
+                =& [ \epsilon_0^y, \frac{\epsilon_{1}^y}{\rho} ]\\
 |\epsilon^x|^2  =& |\epsilon_0^y|^2 + \frac{|\epsilon_1^y|^2}{\rho^2} \\
-|\epsilon^x|^2  =& \frac{1}{2} \times |\epsilon^y|^2 + \frac{1}{2} \times \frac{|\epsilon^y|^2}{\rho^2} \\
-|\epsilon^x|^2  =& \frac{|\epsilon^y|^2}{2} \times (1 + \frac{1}{\rho^2})
+                =& \frac{1}{2} \times |\epsilon^y|^2 + \frac{1}{2} \times \frac{|\epsilon^y|^2}{\rho^2} \\
+                =& \frac{|\epsilon^y|^2}{2} \times (1 + \frac{1}{\rho^2})
 \end{align}
 \end{subequations}
 
@@ -653,8 +657,8 @@ Using the above formulation, the SNR reduction factor $\alpha$ can be expressed 
 \begin{subequations}
 \begin{align}
 \alpha =& \frac{snr_i}{snr_o} \\
-\alpha =& \frac{|x|^2}{|\epsilon^x|^2} \times  \frac{|\epsilon^y|^2}{|y|^2} \\
-\alpha =& \frac{4}{(1+\frac{1}{\rho^2}) \times (1 + \rho^2)}
+ =& \frac{|x|^2}{|\epsilon^x|^2} \times  \frac{|\epsilon^y|^2}{|y|^2} \\
+ =& \frac{4}{(1+\frac{1}{\rho^2}) \times (1 + \rho^2)}
 \end{align}
 \end{subequations}
 
@@ -672,8 +676,8 @@ For arbitrarily parameterized batch normalization layers, the SNR degradation fa
 \begin{subequations}
 \begin{align}
 \alpha =& \frac{snr_i}{snr_o} \\
-\alpha =& \frac{|x|^2}{|\epsilon^x|^2} \times  \frac{|\epsilon^y|^2}{|y|^2} \\
-\alpha =& \frac{|x|^2}{|y|^2} \times  \frac{|\epsilon^y|^2}{|\epsilon^x|^2} \\
+       =& \frac{|x|^2}{|\epsilon^x|^2} \times  \frac{|\epsilon^y|^2}{|y|^2} \\
+       =& \frac{|x|^2}{|y|^2} \times  \frac{|\epsilon^y|^2}{|\epsilon^x|^2} 
 \end{align}
 \end{subequations}
 
@@ -681,31 +685,32 @@ Assuming a noise $\epsilon^y$, equally distributed across all channels, the nois
 
 \begin{subequations}
 \begin{align}
-\tilde{y}_i  =& \gamma \times \frac{x_i - \hat{x_i}}{\sqrt{\dot{x_i}} + \epsilon_i} + \beta_i + \epsilon^y_i\\
-\tilde{x}_i  =& (\sqrt{\dot{x_i}} + \epsilon) \times \frac{y_i -  \beta_i}{\gamma_i}  + \hat{x_i} \\
-\tilde{x}_i  =& x_i + \frac{\gamma_i}{\dot{x_i}} \times \epsilon^y_i \\
+\tilde{y}_i  =& \gamma_i \times \frac{x_i - \hat{x_i}}{\sqrt{\dot{x_i}} + \epsilon} + \beta_i + \epsilon^y_i\\
+\tilde{x}_i  =& (\sqrt{\dot{x_i}} + \epsilon) \times \frac{\tilde{y}_i -  \beta_i}{\gamma_i}  + \hat{x_i} \\
+             =& x_i + \frac{\sqrt{\dot{x_i}}+\epsilon}{\gamma_i} \times \epsilon^y_i \\
 \epsilon^x_i =& \tilde{x}_i - x_i\\
-\epsilon^x_i =& \frac{\gamma_i}{\dot{x_i}} \times \epsilon^y_i\\
+             =& \frac{\sqrt{\dot{x_i}}+\epsilon}{\gamma_i} \times \epsilon^y_i\\
 \frac{|\epsilon^y|^2}{|\epsilon^x|^2} =& \frac{|\epsilon^y|^2}{\frac{|\epsilon^y|^2}{c} \times \sum_i \frac{\dot{x_i}^2}{\gamma_i^2}} \\
-\frac{|\epsilon^y|^2}{|\epsilon^x|^2} =& \frac{c}{\sum_i \frac{\dot{x_i}^2}{\gamma_i^2}}
+                                      =& \frac{c}{\sum_i \frac{\sqrt{\dot{x_i}}+\epsilon}{\gamma_i}}
 \end{align}
 \end{subequations}
 
-Assuming input $x$ following a Gaussian distribution with channel-wise mean and standard deviation 
-$\hat{x_i}$ and $\dot{x_i}$ respectively, the formula for the SNR reduction factor $\alpha$ becomes: 
+Assuming input $x$ following a Gaussian distribution with channel-wise mean $\hat{x_i}$ and variance $\dot{x_i}$, 
+the SNR reduction factor $\alpha$ becomes: 
 
 \begin{subequations}
 \begin{align}
-\frac{|x|^2}{|y|^2} =& \frac{\sum_i |x_i|^2}{\sum_i|y|^2} \\
-\frac{|x|^2}{|y|^2} =& \frac{\sum_i (\hat{x}_i^2 + \dot{x_i}^2)}{\sum_i (\gamma_i^2 + \beta_i^2)} \\
-\alpha              =& \frac{\sum_i (\hat{x}_i^2 + \dot{x_i}^2)}{\sum_i (\gamma_i^2 + \beta_i^2)} \times \frac{c}{\sum_i \frac{\dot{x_i}^2}{\gamma_i^2}}
+\frac{|x|^2}{|y|^2} =& \frac{\sum_i |x_i|^2}{\sum_i|y_i|^2} \\
+                    =& \frac{\sum_i (\hat{x}_i^2 + \dot{x_i})}{\sum_i (\gamma_i^2 + \beta_i^2)} \\
+\alpha =& \frac{|x|^2}{|y|^2} \times  \frac{|\epsilon^y|^2}{|\epsilon^x|^2}  \\
+       =& \frac{\sum_i (\hat{x}_i^2 + \dot{x_i})}{\sum_i (\gamma_i^2 + \beta_i^2)} \times \frac{c}{\sum_i \frac{\sqrt{\dot{x_i}}+\epsilon}{\gamma_i}}
 \end{align}
 \end{subequations}
 
 %The full proof of this formula is given in the appendix and follows the same reasoning as for the toy parametrization. 
 %The only assumption made by this proof is that both the input $x$ and output noise $\epsilon^y$ are identically distributed across all channels, which we found to hold true in practice. 
-We verify the validity of equation (22c) by empirically evaluating the different $\alpha$ ratio yielded by randomly initialized batch normalization layers with input values and output noise randomly drawn from Gaussian distribution.  
-Figure 5 plots the empirically found $\alpha$ values against the theoretical values predicted by our formula and show a close match. 
+%We verify the validity of equation (22c) by empirically evaluating the different $\alpha$ ratio yielded by randomly initialized batch normalization layers with input values and output noise randomly drawn from Gaussian distribution.  
+%Figure 5 plots the empirically found $\alpha$ values against the theoretical values predicted by our formula and show a close match. 
 
 Finally, we propose the following modification, introducing the hyperparameter $\epsilon_i$, to the invertible batch normalization layer:
 
@@ -760,29 +765,29 @@ y_{pn} \  \text{if}\  \hat{y}<0    &\text{and}\  y>=1
 Where the index $np$, for instance, represents negative activations whose reconstructions have become positive due to the added noise. 
 The signal to noise ratio of the input and outputs can be expressed respectively as:
 
-In the case where $y >> \epsilon_y$, the probability of sign flips ($y_{np}$, $y_{pp}$) is negligible, 
-so that the output signal $y$ is evenly splited along $y_{pp}$ and $y_{nn}$.
+In the case where $y >> \epsilon_y$, the probability of sign flips ($y_{np}$, $y_{pn}$) is negligible, 
+so that the output signal $y$ is evenly split along $y_{pp}$ and $y_{nn}$.
 In this regime, the degradation of the SNR obeys a formula similar to the toy batch normalization example:
 
 \begin{subequations}
 \begin{align}
  y =& [y_{pp}, y_{nn}] \\
- y =& [x_{pp}, \frac{x_{nn}}{n}] \\
+   =& [x_{pp}, \frac{x_{nn}}{n}] \\
  |y|^2 =& \frac{1}{2} \times |x|^2 + \frac{1}{2} \times \frac{|x|^2}{n^2} \\
- |y|^2 =&\frac{|x|^2}{2} \times (1+\frac{1}{n^2})
+       =&\frac{|x|^2}{2} \times (1+\frac{1}{n^2})
 \end{align}
 \end{subequations}
 
 \begin{subequations}
 \begin{align}
 \tilde{y}       =& [ \tilde{y}_{pp}, \tilde{y}_{nn}] \\
-\tilde{y}       =& [ x_{pp} + \epsilon_{pp}^y, \frac{x_{nn}}{n} + \epsilon_{nn}^y ] \\
+                =& [ x_{pp} + \epsilon_{pp}^y, \frac{x_{nn}}{n} + \epsilon_{nn}^y ] \\
 \tilde{x}       =& [ \tilde{y}_{pp}, \tilde{y}_{nn} \times n] \\
-\tilde{x}       =& [ x_{pp} + \epsilon_{pp}^y, x_{nn} + \epsilon_{nn}^y \times n  ]\\
+                =& [ x_{pp} + \epsilon_{pp}^y, x_{nn} + \epsilon_{nn}^y \times n  ]\\
 \epsilon^x      =& \tilde{x} - x\\
-\epsilon^x      =& [ \epsilon_{pp}^y, \epsilon_{nn}^y \times n ]\\
+                =& [ \epsilon_{pp}^y, \epsilon_{nn}^y \times n ]\\
 |\epsilon^x|^2  =& \frac{1}{2} \times |\epsilon^y|^2 + \frac{1}{2} \times |\epsilon^y|^2 \times n^2 \\
-|\epsilon^x|^2  =& \frac{|\epsilon^y|^2}{2} \times (1 + n^2)
+                =& \frac{|\epsilon^y|^2}{2} \times (1 + n^2)
 \end{align}
 \end{subequations}
 
@@ -791,8 +796,8 @@ Using the above formulation, the signal to noise ration reduction factor $\alpha
 \begin{subequations}
 \begin{align}
 \alpha =& \frac{snr_i}{snr_o} \\
-\alpha =& \frac{|x|^2}{|\epsilon^x|^2} \times  \frac{|\epsilon^y|^2}{|y|^2} \\
-\alpha =& \frac{4}{(1+\frac{1}{n^2}) \times (1 + n^2)}
+       =& \frac{|x|^2}{|\epsilon^x|^2} \times  \frac{|\epsilon^y|^2}{|y|^2} \\
+       =& \frac{4}{(1+\frac{1}{n^2}) \times (1 + n^2)}
 \end{align}
 \end{subequations}
 
@@ -841,13 +846,13 @@ the reshaping operation performed by both pooling layers can be formalized as fo
 \begin{subequations}
 \begin{align}
 	\mathcal{P}_c :& x \rightarrow y \\
-	\mathcal{P}_c :& \mathbb{R}^{bs \times c \times h \times w}  \rightarrow \mathbb{R}^{bs \times 4c \times \frac{h}{2} \times \frac{w}{2}}\\
+	              :&  \mathbb{R}^{bs \times c \times h \times w}  \rightarrow \mathbb{R}^{bs \times 4c \times \frac{h}{2} \times \frac{w}{2}}\\
 	\mathcal{P}_b :& x \rightarrow y \\
-    \mathcal{P}_b :&  \mathbb{R}^{bs \times c \times h \times w}  \rightarrow \mathbb{R}^{4bs \times c \times \frac{h}{2} \times \frac{w}{2}}
+                      :&  \mathbb{R}^{bs \times c \times h \times w}  \rightarrow \mathbb{R}^{4bs \times c \times \frac{h}{2} \times \frac{w}{2}}
 \end{align}
 \end{subequations}
 
-Channel pooling gives usa way to perform volume-preserving pooling operations while increasing the number of channels at a given layer of the architecture,
+Channel pooling gives us a way to perform volume-preserving pooling operations while increasing the number of channels at a given layer of the architecture,
 while batch pooling gives us a way to perform volume-preserving pooling operations while keeping the number of channel constant, 
 By alternating between channel and batch pooling, we can control the number of channels at each pooling level of the model's architecture.
 
@@ -859,8 +864,8 @@ For an input channel size of 32, The peak memory usage for an iteration of train
 \begin{subequations}
 \begin{align}
 \mathcal{M} &= M_{\theta} + M_{z} + M_{g} \\
-\mathcal{M} &= (M_{\theta} + (M_z' + M_{g}') \times (h \times w \times bs)) \times bpe \\
-\mathcal{M} &= (29.6 \times 10^6 + 320 \times (h \times w \times bs)) \\
+            &= M_{\theta} + (M_z' + M_{g}') \times (h \times w \times bs) \\
+            &= 29.6 \times 10^6 + 320 \times (h \times w \times bs)
 \end{align}
 \end{subequations}
 
@@ -894,8 +899,8 @@ The peak memory consumption of our proposed architecture, as illustrated in Figu
 \begin{subequations}
 \begin{align}
 \mathcal{M} &= M_{\theta} + M_{z} + M_{g} \\
-\mathcal{M} &= (M_{\theta} + (M_z' + M_{g}') \times (h \times w \times bs)) \times bpe \\
-\mathcal{M} &= (14.8 \times 10^6 + 352 \times (h \times w \times bs)) \\
+            &= M_{\theta} + (M_z' + M_{g}') \times (h \times w \times bs) \\
+            &= 14.8 \times 10^6 + 352 \times (h \times w \times bs) 
 \end{align}
 \end{subequations}
 
@@ -975,12 +980,12 @@ All models were trained for 50 epochs of stochastic gradient descent with cyclic
 
 \begin{table*}[t]
 \begin{tabular}{ c c c c c c c c}	
-Model     & Accuracy & \#Params & Channels & Pooling  & $M_{\theta}$ & $M_{z}'$ & $\mathcal{M} $ \\
+Model     & Accuracy & \#Params & Channels & Pooling  & $M_{\theta}$ & $M_{z}'+M_{g}'$ & $\mathcal{M} $ \\
 \hline
-Resnet    & $94.7$   & $3.1M$   &  $32 - 64 - 128  - 256$       & Max Pooling      				           &  $12.4M$   &  $1928$  & $1.01G$  \\			
-RevNet    & $94.5$   & $3.1M$   &  $40 - 80 - 256  - 320$       & Max Pooling      				           &  $12.4M$   &  $640$   & $348M$   \\
-i-RevNet  & $93.8$   & $42.8M$  &  $32 - 128 - 512 - 2048$      & $\mathcal{P}_c - \mathcal{P}_c - \mathcal{P}_c$          &  $171M$    &  $640$   & $500M$   \\
-Ours      & $93.3$   & $3.7M$   &  $32 - 128 - 512 - 512$       & $[\mathcal{P}_c, \mathcal{P}_c, \mathcal{P}_b]$          &  $14.8M$   &  $352$   & $200M$   \\
+Resnet    & $94.7\%$   & $3.1M$   &  $32 - 64 - 128  - 256$       & Max Pooling      				           &  $12.4M$   &  $1928$  & $1.01G$  \\			
+RevNet    & $94.5\%$   & $3.1M$   &  $40 - 80 - 256  - 320$       & Max Pooling      				           &  $12.4M$   &  $640$   & $348M$   \\
+i-RevNet  & $93.8\%$   & $42.8M$  &  $32 - 128 - 512 - 2048$      & $\mathcal{P}_c - \mathcal{P}_c - \mathcal{P}_c$          &  $171M$    &  $640$   & $500M$   \\
+Ours      & $93.3\%$   & $3.7M$   &  $32 - 128 - 512 - 512$       & $[\mathcal{P}_c, \mathcal{P}_c, \mathcal{P}_b]$          &  $14.8M$   &  $352$   & $200M$   \\
 \hline
 \end{tabular}
 \begin{center}
@@ -997,10 +1002,10 @@ These drastic memory cuts come at the cost of a small degradation in accuracy.
 \begin{table}[h]
 \centering
 \begin{tabular}{ c c c c}	
- GPU & Time & Accuracy \\
+ GPU & Accuracy  & Time \\
 \hline			
-GTX750     & $93.3$  & $35 min.$    \\
-GTX 1080Ti & $93.3$  & $67 min.$  \\
+GTX750     & $93.3\%$  & $35 min.$    \\
+GTX 1080Ti & $93.3\%$  & $67 min.$  \\
 \hline
 \end{tabular}
 \caption{Training statistics on different hardware}
@@ -1088,7 +1093,7 @@ storing all hidden activations within the reversible block before the gradient b
 Illustration of the Revnet architecture and its memory consumption.
 Modules contributing to the peak memory consumption are shown in red.
 The peak memory consumption happens during the backward pass through the first reversible block.
-At this step of the computations, all hidden activations within the reversible block are stored in memory simulateously.
+At this step of the computations, all hidden activations within the reversible block are stored in memory simultaneously.
 }
 \end{figure}
 
@@ -1108,10 +1113,8 @@ weight kernel size grows quadratically in the number of channels.
 \includegraphics{Figure5.png}
 \caption{
 Illustration of the numerical errors arising from batch normalization layers.
-(Left) Comparison of the theoretical and empirical evolution of the $\alpha$ ratio for different $\rho$ values in our toy example.
+Comparison of the theoretical and empirical evolution of the $\alpha$ ratio for different $\rho$ values in our toy example.
 Empirical values were computed for a Gaussian input signal with zero mean and standard deviation 1 and a white Gaussian noise of standard deviation $10^{-5}$.
-(Right) Comparison of the theoretical and empirical evolution of the $\alpha$ ratio for different for arbitrarily parameterized layers.
-Empirical values were computed for random Gaussian input signal and a white Gaussian noise of standard deviation $10^{-5}$.
 }
 \end{figure}
 
