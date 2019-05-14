@@ -859,7 +859,7 @@ By alternating between channel and batch pooling, we can control the number of c
 \subsubsection{Layer-wise invertible architecture}
 
 Putting together the above building blocks, Figure 7 illustrates a layer-wise invertible architecture.
-For an input channel size of 32, The peak memory usage for an iteration of training this architecture can be computed as follows:
+The peak memory usage for a training iteration of this architecture, as parameterized in Table 1, can be computed as follows:
 
 \begin{subequations}
 \begin{align}
@@ -893,7 +893,7 @@ The analytical inverse of the residual level reversible blocks is used to propag
 while layer-wise inversion allows us to alleviate the local bottleneck of the reversible block by computing the hidden activation values together with the backward flow of the gradients. 
 As layer-wise inverses are only used for hidden feature computations within the scope of the reversible block,
 and reversible blocks are made of relatively short chains of operations,
-numerical errors do not accumulate up to a damaging degree,
+numerical errors do not accumulate up to a damaging degree.
 
 The peak memory consumption of our proposed architecture, as illustrated in Figure 8 and parameterized in Table 1, can be computed as  
 \begin{subequations}
@@ -982,8 +982,8 @@ All models were trained for 50 epochs of stochastic gradient descent with cyclic
 \begin{tabular}{ c c c c c c c c}	
 Model     & Accuracy & \#Params & Channels & Pooling  & $M_{\theta}$ & $M_{z}'+M_{g}'$ & $\mathcal{M} $ \\
 \hline
-Resnet    & $94.7\%$   & $3.1M$   &  $32 - 64 - 128  - 256$       & Max Pooling      				           &  $12.4M$   &  $1928$  & $1.01G$  \\			
-RevNet    & $94.5\%$   & $3.1M$   &  $40 - 80 - 256  - 320$       & Max Pooling      				           &  $12.4M$   &  $640$   & $348M$   \\
+Resnet    & $94.7\%$   & $3.1M$   &  $32 - 64 - 128  - 256$       & Max Pooling      				           &  $12.5M$   &  $1928$  & $1.01G$  \\			
+RevNet    & $94.5\%$   & $3.1M$   &  $40 - 80 - 256  - 320$       & Max Pooling      				           &  $12.7M$   &  $640$   & $348M$   \\
 i-RevNet  & $93.8\%$   & $42.8M$  &  $32 - 128 - 512 - 2048$      & $\mathcal{P}_c - \mathcal{P}_c - \mathcal{P}_c$          &  $171M$    &  $640$   & $500M$   \\
 Ours      & $93.3\%$   & $3.7M$   &  $32 - 128 - 512 - 512$       & $[\mathcal{P}_c, \mathcal{P}_c, \mathcal{P}_b]$          &  $14.8M$   &  $352$   & $200M$   \\
 \hline
