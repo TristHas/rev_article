@@ -167,7 +167,7 @@
 \begin{abstractbox}
 \begin{abstract} % abstract
 Training Convolutional Neural Networks (CNN) is a resource intensive task that requires specialized hardware for efficient computation. 
-One of the most limiting bottleneck of CNN training is the memory cost associated with storing the activation values of hidden layers needed for the computation of the weights gradient during the backward pass of the backpropagation algorithm.
+One of the most limiting bottleneck of CNN training is the memory cost associated with storing the activation values of hidden layers needed for the backpropagation of the gradients.
 Recently, reversible architectures have been proposed to reduce the memory cost of training large CNN by reconstructing the input activation values of hidden layers from their output during the backward pass, circumventing the need to accumulate these activations in memory during the forward pass.
 In this paper, we push this idea to the extreme and analyze reversible network designs yielding minimal training memory footprint.
 We investigate the propagation of numerical errors in long chains of invertible operations and analyze their effect on training.
@@ -230,7 +230,7 @@ This new kind of architecture enables training large neural networks on very lim
 % 1. Catchy Intro
 Over the last few years, Convolutional Neural Networks (CNN) have enabled unprecedented progress on a wide array of computer vision tasks.
 One disadvantage of these approaches is their resource consumption: 
-Training deep models within a reasonable amount of time requires special
+training deep models within a reasonable amount of time requires special
 Graphical Processing Units (GPU) with numerous cores and large memory capacity.
 Given the practical importance of these models, a lot of research effort has been directed
 towards algorithmic and hardware innovations to improve their resource efficiency such as low-precision arithmetic \cite{jacob2018quantization}, network pruning for inference \cite{molchanov2016pruning}, or efficient stochastic optimization algorithms \cite{kingma2014adam}.
@@ -241,10 +241,10 @@ We envision several potential benefits from the ability to train large neural ne
 
 % 2.1 Democratization
 \textbf{Democratization of Deep Learning research:} 
-Training large CNN requires special GPUs with large memory capacity. 
+Training large CNNs requires special GPUs with large memory capacity. 
 Typical desktop GPUs memory capacity is too small for training large CNNs.
 As a result, getting into deep learning research comes with the barrier cost of either buying specialized hardware or renting live instances from cloud service providers. 
-Reducing the memory cost of deep model training would allow training deep nets on standard graphic cards without the need for specialized hardware, effectively removing this barrier cost.
+Reducing the memory cost of deep model training would allow training deep networks on standard graphic cards without the need for specialized hardware, effectively removing this barrier cost.
 In this paper, we demonstrate efficient training of a CNN on the CIFAR10 dataset (93.3\% accuracy within 67 minutes) on an Nvidia GTX750 with only 1GB of memory.
 
 % 2.2
@@ -330,12 +330,12 @@ MobileNet \cite{howard2017mobilenets} uses depth-wise separable convolutions to 
 Network pruning \cite{molchanov2016pruning} is a set of techniques developed to decrease the model weight size and computational complexity.
 Network pruning works by removing the network weights that contribute the least to the model output.
 Pruning deep models has been shown to drastically reduce the memory cost and computational cost of inference without  significantly hurting model accuracy.
-Although pruning has been concerned with optimization of the resource inference, the recently proposed lottery ticket hypothesis \cite{frankle2018lottery} has shown that specifically pruned networks could  be trained from scratch to high accuracy.
+Although pruning has been concerned with optimization of the resource inference, the recently proposed lottery ticket hypothesis \cite{frankle2018lottery} has shown that specifically pruned networks could be trained from scratch to high accuracy.
 This may be an interesting and complementary line of work to investigate in the future to reduce training memory costs.
 
 % low precision arithmetic.
 Low precision arithmetic has been proposed as a mean to reduce both memory consumption and computation time of deep learning models. Mixed precision training \cite{micikevicius2017mixed} combines float16 with float32 operations to avoid numerical instabilities due to either overflow or underflow.
-For inference,  integer quantization \cite{jacob2018quantization,wu2018training} has been shown to drastically improve the computation and memory efficiency and has been successfully deployed on both edge devices and data centers.
+For inference, integer quantization \cite{jacob2018quantization,wu2018training} has been shown to drastically improve the computation and memory efficiency and has been successfully deployed on both edge devices and data centers.
 Integrating mixed-precision training to our proposed architecture would allow us to further reduce training memory costs. 
 
 % Gradient checkpointing
@@ -927,7 +927,7 @@ We then summarize the benefits and drawbacks of our proposed architecture in com
 
 In this section, we quantify the accumulation of numerical errors in layer-wise invertible architectures and analyze their impact on the accuracy.
 The architecture of these models is illustrated in Figure 7.
-We investigate the evolution of numerical errors, and their impact on accuracy, for networks of different depth and different hyper-parameter values.
+We investigate the evolution of numerical errors, and their impact on accuracy, for networks of different depths and different hyper-parameter values.
 Figure 10 illustrates the degradation of the signal-to-noise ration along the layers of one such model.
 
 We found the two most impacting parameters to be the depth $N$ of the network and the negative slope $n$ of the activation function.
@@ -939,7 +939,7 @@ we compare the accuracy reached by the same architecture with and without invers
 Without reconstruction, the hidden activation values are stored along the forward pass and the gradient updates are computed from the true, 
 noiseless activation values, so that the only difference between both settings is the noise introduced by the inverse reconstructions.
 
-In Figure 12, we compare the evolution of the accuracy in both settings for different depth and negative slopes.
+In Figure 12, we compare the evolution of the accuracy in both settings for different depths and negative slopes.
 For small depths (or high negative slopes), in which the numerical errors are minimum, both models yield similar accuracy.
 However, as the numerical errors grow, the accuracy of the model goes down, 
 while the accuracy of the ideal baseline keeps increasing,
@@ -1004,8 +1004,8 @@ These drastic memory cuts come at the cost of a small degradation in accuracy.
 \begin{tabular}{ c c c c}	
  GPU & Accuracy  & Time \\
 \hline			
-GTX750     & $93.3\%$  & $35 min.$    \\
-GTX 1080Ti & $93.3\%$  & $67 min.$  \\
+GTX750     & $93.3\%$  & $67 min.$    \\
+GTX 1080Ti & $93.3\%$  & $35 min.$  \\
 \hline
 \end{tabular}
 \caption{Training statistics on different hardware}
@@ -1021,7 +1021,7 @@ Training a vanilla ResNet with large batch sizes on such limited memory resource
 \section{Conclusion}
 
 Convolutional Neural Networks form the backbone of modern computer vision systems.
-However, the accuracy of these models come at the cost of resource intensive training and inference procedures.
+However, the accuracy of these models comes at the cost of resource intensive training and inference procedures.
 While tremendous efforts have been put into the optimization of the inference step on resource-limited device,
 relatively little work have focused on algorithmic solutions for limited resource training. 
 In this paper, we have presented an architecture able to yield high accuracy classifications within very tight memory constraints.
