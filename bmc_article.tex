@@ -335,7 +335,7 @@ Although pruning has been concerned with optimization of the resource inference,
 This may be an interesting and complementary line of work to investigate in the future to reduce training memory costs.
 
 % low precision arithmetic.
-Low precision arithmetic has been proposed as a mean to reduce both memory consumption and computation time of deep learning models. Mixed precision training \cite{micikevicius2017mixed} combines float16 with float32 operations to avoid numerical instabilities due to either overflow or underflow.
+Low precision arithmetic has been proposed as a mean to reduce both memory consumption and computation time of deep learning models. Mixed precision training \cite{micikevicius2017mixed} combines FP16 with FP32 operations to avoid numerical instabilities due to either overflow or underflow.
 For inference, integer quantization \cite{jacob2018quantization,wu2018training} has been shown to drastically improve the computation and memory efficiency and has been successfully deployed on both edge devices and data centers.
 Integrating mixed-precision training to our proposed architecture would allow us to further reduce training memory costs. 
 
@@ -419,15 +419,31 @@ In the following subsections, we detail the memory footprint of existing archite
 To help us formalize these memory costs, we further introduce the following notations: 
 let $n(x)$ denote the number of elements in a tensor $x$, i.e.; if $x$ is an $h \times w$ matrix, then $n(x)=h \times w$. 
 Let $bpe$ be the memory cost in bytes per elements of a given precision so that the actual memory cost for storing an $h \times w$ matrix is $n(x) \times bpe$. 
-For instance, float32 tensors have a memory cost per element $bpe=4$. 
+For instance, FP32 tensors have a memory cost per element $bpe=4$. 
 We use $bs$ to denote the batch size, and $c_i$ to denote the number of channels at layer $i$.
+
+It should be noted that the memory cost of the activations and the gradients are proportional to the size of the input image batch:
+Training a CNN on twice larger input image batch sizes or twice higher resolution requires twice more memory.
+Thus theses costs, for a given architectures, are better characterized in bytes per input pixels, 
+which we denote $M_{z}'$ and $M_{g}'$ respectively, and are defined by:
+
+\begin{subequations}
+\begin{align}
+M_{z}' &= \frac{M_{z}}{bs \times h \times w}  \\
+M_{g}' &= \frac{M_{g}}{bs \times h \times w}  
+\end{align}
+\end{subequations}
+
+
 
 \subsection{Vanilla ResNet}
 
 The architecture of a vanilla ResNet-18 is shown in Figure 1.
-Vanilla ResNets do not use reversible computations so that the input activations of all parameterized layers need to be accumulated in memory during the forward pass for the computation of the weight gradients to be done in the backward pass.
+Vanilla ResNets do not use reversible computations so that the input activations of all parameterized layers need to be accumulated 
+in memory during the forward pass for the computation of the weight gradients to be done in the backward pass.
 
-Hence the peak memory footprint of training a vanilla ResNet happens at the beginning of the backward pass when the top layer's activation gradients need to be stored in memory in addition to the full stack of hidden activation values.
+Hence the peak memory footprint of training a vanilla ResNet happens at the beginning of the backward pass 
+when the top layer's activation gradients need to be stored in memory in addition to the full stack of hidden activation values.
 
 Let us denote by $P \subset N$ the subset of parameterized layers of a network $F$ 
 (i.e.; convolutions and batch normalization layers, excluding activation functions and pooling layers). 
@@ -441,14 +457,15 @@ M_{z} &= \sum_{i \in P} n(z_i) \times bpe \\
 \end{subequations}
 
 Where $h_i$ and $w_i$ represent the spatial dimensions of the activation values at layer $i$.
-$h_i$ and $w_i$ are determined by the input image size $h \times w$ and the pooling factor $p_i$ of layer $i$, so we can factor out both the spatial dimensions and the batch size from this equation, yielding a memory cost per input pixel $M'_z$:
+$h_i$ and $w_i$ are determined by the input image size $h \times w$ and the pooling factor $p_i$ of layer $i$, 
+so we can factor out both the spatial dimensions and the batch size from this equation, 
+yielding the memory cost per input pixel:
 
 \begin{subequations}
 \begin{align}
-M_{z} &= \sum_{i \in P} bs \times h \times w \times p_i \times c_i \times bpe \\
-      &= bs \times h \times w \times \sum_{i \in P} p_i \times c_i \times bpe \\
-M_{z}' &= \frac{M_{z}}{bs \times h \times w}  \\
-       &= \sum_{i \in P} p_i \times c_i \times bpe 
+M_{z}  &= \sum_{i \in P} bs \times h \times w \times p_i \times c_i \times bpe \\
+       &= bs \times h \times w \times \sum_{i \in P} p_i \times c_i \times bpe \\
+M_{z}' &= \sum_{i \in P} p_i \times c_i \times bpe 
 \end{align}
 \end{subequations}
 
@@ -458,9 +475,9 @@ The memory footprint of the weights is given by:
  M_{\theta} = \sum_{i \in P}  n(\theta_i)\times bpe 
 \end{equation}
 
-% Introduce memory cost per pixel
-The memory footprint of the gradients correspond to the size of the gradient buffers at the time of peak memory usage. In a vanilla ResNet18 model, this peak memory usage happens during the backward pass through the last convolution of the network.
-Hence, the memory footprint of the gradients correspond to the memory cost of storing the gradients with respect to either the input or the output of this layer, which also depends on the input pixel size:
+The memory footprint of the gradients correspond to the size of the gradient buffers at the time of peak memory usage. 
+In a vanilla ResNet18 model, this peak memory usage happens during the backward pass through the last convolution of the network.
+Hence, the memory footprint of the gradients correspond to the memory cost of storing the gradients with respect to either the input or the output of this layer.
 
 \begin{subequations}
 \begin{align}
