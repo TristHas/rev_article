@@ -62,7 +62,7 @@
 \endlocaldefs
 %%% Begin ...
 \begin{document}
-%%% Start of article front matter
+\[%%% Start of article front matter
 \begin{frontmatter}
 \begin{fmbox}
 \dochead{Research}
@@ -167,8 +167,9 @@
 \begin{abstractbox}
 \begin{abstract} % abstract
 Training Convolutional Neural Networks (CNN) is a resource intensive task that requires specialized hardware for efficient computation. 
-One of the most limiting bottleneck of CNN training is the memory cost associated with storing the activation values of hidden layers needed for the backpropagation of the gradients.
-Recently, reversible architectures have been proposed to reduce the memory cost of training large CNN by reconstructing the input activation values of hidden layers from their output during the backward pass, circumventing the need to accumulate these activations in memory during the forward pass.
+One of the most limiting bottleneck of CNN training is the memory cost associated with storing the activation values of hidden layers needed for the computation of the weights gradient.
+Recently, reversible architectures have been proposed to reduce the memory cost of training large CNN by reconstructing the input activation values of hidden layers from their output during the backward pass, 
+circumventing the need to accumulate these activations in memory during the forward pass.
 In this paper, we push this idea to the extreme and analyze reversible network designs yielding minimal training memory footprint.
 We investigate the propagation of numerical errors in long chains of invertible operations and analyze their effect on training.
 We introduce the notion of pixel-wise memory cost to characterize the memory footprint of model training,
@@ -483,7 +484,7 @@ For a ResNet parameterized following Table 1, the peak memory consumption can th
 For example, a training iteration over a typical batch of 32 images of resolution $240 \times 240$ 
 requires 12.5 MB of memory to store the model weights and 3.8 GB of memory to store the hidden layers activations and gradients
 for a total of $\mathcal{M}=3.81$ GB of VRAM.
-The memory cost of the hidden activations is thus the main memory bottleneck of CNN training as the cost associated with 
+The memory cost of the hidden activations is thus the main memory bottleneck of training a ResNet as the cost associated with 
 the model weights is negligible in comparison.
 
 \subsection{RevNet}
@@ -791,7 +792,7 @@ In this regime, the degradation of the SNR obeys a formula similar to the toy ba
 \end{align}
 \end{subequations}
 
-Using the above formulation, the signal to noise ration reduction factor $\alpha$ can be expressed as:
+Using the above formulation, the signal to noise ratio reduction factor $\alpha$ can be expressed as:
 
 \begin{subequations}
 \begin{align}
@@ -928,7 +929,7 @@ We then summarize the benefits and drawbacks of our proposed architecture in com
 In this section, we quantify the accumulation of numerical errors in layer-wise invertible architectures and analyze their impact on the accuracy.
 The architecture of these models is illustrated in Figure 7.
 We investigate the evolution of numerical errors, and their impact on accuracy, for networks of different depths and different hyper-parameter values.
-Figure 10 illustrates the degradation of the signal-to-noise ration along the layers of one such model.
+Figure 10 illustrates the degradation of the signal-to-noise ratio along the layers of one such model.
 
 We found the two most impacting parameters to be the depth $N$ of the network and the negative slope $n$ of the activation function.
 Figure 11 shows the evolution of the numerical errors with both of these parameters.
@@ -1031,7 +1032,7 @@ and illustrated the efficiency of our approach by training a CNN to 93.3\% accur
 \section*{Abreviation}
 
 CNN: Convolutional Neural Network  \\
-SNR: Signal to Noise Ration \\
+SNR: Signal to Noise Ratio \\
 GPU: Graphical Processing Unit \\
 ResNet: Residual Network \\
 RevNet: Reversible Network
@@ -1227,4 +1228,5 @@ which results in smaller effects of the depth and negative slope on accuracy.
 \end{figure}
 
 \end{backmatter}
+\]
 \end{document}
