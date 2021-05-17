@@ -62,10 +62,76 @@
 \endlocaldefs
 %%% Begin ...
 \begin{document}
-\[%%% Start of article front matter
+\[%% BioMed_Central_Tex_Template_v1.06    %
+%%                                      %
+%  bmc_article.tex            ver: 1.06 %
+%                                       %
+%%IMPORTANT: do not delete the first line of this template
+%%It must be present to enable the BMC Submission system to
+%%recognise this template!!
+
+%%% additional documentclass options:
+%  [doublespacing]
+%  [linenumbers]   - put the line numbers on margins
+
+%%% loading packages, author definitions
+
+\documentclass[twocolumn]{bmcart}
+% uncomment this for twocolumn layout and comment line below
+%\documentclass{bmcart}
+%%% Load packages
+%\usepackage{amsthm,amsmath}
+%\RequirePackage{natbib}
+%\RequirePackage[authoryear]{natbib}% uncomment this for author-year bibliography
+%\RequirePackage{hyperref}
+%\usepackage[utf8]{inputenc} %unicode support
+
+\usepackage{graphicx}
+\usepackage[fleqn]{amsmath}
+\usepackage[psamsfonts]{amssymb}
+\usepackage{multirow}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+
+%\usepackage{caption}
+%\usepackage{algpseudocode}
+%\usepackage[applemac]{inputenc} %applemac support if unicode package fails
+%\usepackage[latin1]{inputenc} %UNIX support if unicode package fails
+
+\newlength\myindent
+\setlength\myindent{2em}
+\newcommand\bindent{%
+  \begingroup
+  \setlength{\itemindent}{\myindent}
+  \addtolength{\algorithmicindent}{\myindent}
+}
+\newcommand\eindent{\endgroup}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                             %%
+%%  If you wish to display your graphics for   %%
+%%  your own use using includegraphic or       %%
+%%  includegraphics, then comment out the      %%
+%%  following two lines of code.               %%
+%%  NB: These line *must* be included when     %%
+%%  submitting to BMC.                         %%
+%%  All figure files must be submitted as      %%
+%%  separate graphics through the BMC          %%
+%%  submission process, not included in the    %%
+%%  submitted article.                         %%
+%%                                             %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\includegraphic{}
+\def\includegraphics{}
+%%% Put your definitions there:
+\startlocaldefs
+\endlocaldefs
+%%% Begin ...
+\begin{document}
+%%% Start of article front matter
 \begin{frontmatter}
 \begin{fmbox}
 \dochead{Research}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
 %% Enter the title of your article here     %%
@@ -73,6 +139,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title{Reversible designs for extreme memory cost reduction of CNN training}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -106,6 +173,7 @@
    addressref={aff1,aff2},
    email={takigu@kobe-u.ac.jp}
 ]{\inits{TT}\fnm{Tetsuya} \snm{Takiguchi}}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -167,9 +235,8 @@
 \begin{abstractbox}
 \begin{abstract} % abstract
 Training Convolutional Neural Networks (CNN) is a resource intensive task that requires specialized hardware for efficient computation. 
-One of the most limiting bottleneck of CNN training is the memory cost associated with storing the activation values of hidden layers needed for the computation of the weights gradient.
-Recently, reversible architectures have been proposed to reduce the memory cost of training large CNN by reconstructing the input activation values of hidden layers from their output during the backward pass, 
-circumventing the need to accumulate these activations in memory during the forward pass.
+One of the most limiting bottleneck of CNN training is the memory cost associated with storing the activation values of hidden layers needed for the computation of the weights gradient during the backward pass of the backpropagation algorithm.
+Recently, reversible architectures have been proposed to reduce the memory cost of training large CNN by reconstructing the input activation values of hidden layers from their output during the backward pass, circumventing the need to accumulate these activations in memory during the forward pass.
 In this paper, we push this idea to the extreme and analyze reversible network designs yielding minimal training memory footprint.
 We investigate the propagation of numerical errors in long chains of invertible operations and analyze their effect on training.
 We introduce the notion of pixel-wise memory cost to characterize the memory footprint of model training,
@@ -225,7 +292,6 @@ This new kind of architecture enables training large neural networks on very lim
 
 %%%%%%%%%%%%%%%%%%%%%%%%% start of article main body
 % <put your article body there>
-
 
 \section{Introduction}
 % 1. Catchy Intro
@@ -434,7 +500,7 @@ M_{g}' &= \frac{M_{g}}{bs \times h \times w}
 \end{align}
 \end{subequations}
 
-
+The memory cost of the weights, on the other hand, is independent of the input size and thus reported in bytes.
 
 \subsection{Vanilla ResNet}
 
@@ -595,32 +661,41 @@ As we have seen in the previous section, the design of these reversible blocks c
 In order to circumvent this local bottleneck, we introduce layer-wise invertible operations. 
 However, these invertible operations introduce numerical error, which we characterize in the following subsections.
 In Section 5, we will show that these numerical errors lead to instabilities that degrade the model accuracy.
-Hence, in section 4.2, we propose a hybrid model combining layer-wise and residual block-wise reversible operations to stabilize training while resolving the local memory bottleneck at the cost of a small additional computational cost.
+Hence, in Section 4.2, we propose a hybrid model combining layer-wise and residual block-wise reversible operations to stabilize training while resolving the local memory bottleneck at the cost of a small additional computational cost.
+
 
 \subsection{Layer-wise Invertibility}
 
-In this section, we present invertible layers that act as drop-in replacement for convolution, batch normalization, pooling and non-linearity layers. We then characterize the numerical instabilities arising from the invertible batch normalization and non-linearities.
+In this section, we present invertible layers that act as drop-in replacement for convolution, batch normalization, pooling and non-linearity layers. 
+We then characterize the numerical instabilities arising from the invertible batch normalization and non-linearities.
+But first, we motivate the need for an analysis of numerical errors.
 
-\subsubsection{Invertible batch normalization}
+\subsubsection{Numerical Error Accumulation}
 
-As batch normalization is not a bijective operation, it does admit an analytical inverse.
-However, the inverse reconstruction of a batch normalization layer can be realized with minimal memory cost.
-Given first and second order moment parameters $\beta$ and $\gamma$, the forward $f$ and inverse $f^{-1}$ operation of an invertible batch normalization layer can be computed as follows:
+Layer-wise invertible networks are defined as the composition of invertible functions.
+During the backward pass, each layer is supposed to reconstruct its input $x$
+given the value of its output $y$ using its inverse function:
 
-\begin{subequations}
-\begin{align}
-y = f(x) &= \gamma \times \frac{x - \hat{x}}{\sqrt{\dot{x}} + \epsilon} + \beta \\
-x = f^{-1}(y, \hat{x}, \dot{x}) &= (\sqrt{\dot{x}} + \epsilon) \times \frac{y -  \beta}{\gamma}  + \hat{x}
-\end{align}
-\end{subequations}
+ \begin{subequations}
+   \begin{align}
+   y &= f(x) \\
+   x &= f^{-1}(y)
+   \end{align}
+ \end{subequations}
 
-Where $\hat{x}$ and $\dot{x}$ represent the mean and variance of $x$ respectively.
-Hence, the input activation $x$ can be recovered from $y$ through $f^{-1}$ at the minimal memory cost of storing the input activation statistics $\hat{x}$ and $\dot{x}$.
+In reality, however, the output recovered by upstream invertible layers is a noisy estimate $\hat{y}=y+\epsilon_y$ 
+of the true output due to numerical errors introduced by upstream layers.
+Hence, the noisy input $\hat{x}$ reconstructed by the inverse operation contains a noise $\epsilon_x$ due to the noise $\epsilon_y$ in the output:
 
-Let us consider the accumulation of numerical errors arising from the inverse computation of an invertible batch normalization layer.
-During the backward pass, the invertible batch norm layer is supposed to compute its input $x=f^{-1}(y, \hat{x}, \dot{x})$ from the output $y$.
-In reality, however, the output recovered by upstream invertible layers is a noisy estimate $\hat{y}=y+\epsilon_y$ of the true output due to numerical errors introduced by upstream layers.
-Let us define the signal to noise ratio (SNR) of the input and output signal as follows:
+ \begin{subequations}
+   \begin{align}
+   \hat{x} &= f^{-1}(y+\epsilon_y) \\
+   \hat{x} &= (x+\epsilon_x) \\
+   \epsilon_x &= x - f^{-1}(y+\epsilon_y)
+   \end{align}
+ \end{subequations}
+
+For each layer, we can compute the Signal to Noise Ratio (SNR) of its output and input respectively:
 
 \begin{subequations}
 \begin{align}
@@ -634,6 +709,38 @@ We are interested in characterizing the factor $\alpha$ of reduction of the SNR 
 \begin{equation}
 \alpha = \frac{snr_i}{snr_o}
 \end{equation}
+
+Indeed, given a layer $i$ in a network, its input $z_i$ will be reconstructed 
+from the noisy network output $\hat{y}$ by the composition of its upstream layers.
+Hence, the noise $\epsilon_i$ in the reconstructed and noisy input $\hat{z_i}$ can be computed as:
+
+\begin{subequations}
+\begin{align}
+\hat{z_i}  &= z_i + \epsilon_i \\
+\hat{z_i}  &=  f_i^{-1} \circ f_{i+1}^{-1} \circ ... \circ f_N(\hat{y})\\
+| \epsilon_i |^2 &=  \frac{| \epsilon_y |^2 \times | z_i |^2}{| y |^2} \times \prod_i^{N} \alpha_j \\
+\end{align}
+\end{subequations}
+
+As $z_i$ is used in the computation of layer $i$'s weight gradients according to equation XXX,
+accumulated errors yield noisy gradients which prevent the network from converging as the SNR reaches certain levels.
+Hence, it is important to characterize the factor $\alpha$ for the different invertible layers proposed below.
+
+\subsubsection{Invertible batch normalization}
+
+As batch normalization is not a bijective operation, it does not admit an analytical inverse.
+However, the inverse reconstruction of a batch normalization layer can be realized with minimal memory cost.
+Given first and second order moment parameters $\beta$ and $\gamma$, the forward $f$ and inverse $f^{-1}$ operation of an invertible batch normalization layer can be computed as follows:
+
+\begin{subequations}
+\begin{align}
+y = f(x) &= \gamma \times \frac{x - \hat{x}}{\sqrt{\dot{x}} + \epsilon} + \beta \\
+x = f^{-1}(y, \hat{x}, \dot{x}) &= (\sqrt{\dot{x}} + \epsilon) \times \frac{y -  \beta}{\gamma}  + \hat{x}
+\end{align}
+\end{subequations}
+
+Where $\hat{x}$ and $\dot{x}$ represent the mean and variance of $x$ respectively.
+Hence, the input activation $x$ can be recovered from $y$ through $f^{-1}$ at the minimal memory cost of storing the input activation statistics $\hat{x}$ and $\dot{x}$.
 
 To illustrate the mechanism through which the batch normalization inverse operation reduces the SNR, 
 let us consider a toy layer with only two channels and parameters $\beta=[0,0]$ and $\gamma = [1, \rho]$. 
