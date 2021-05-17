@@ -656,7 +656,7 @@ Hence, the noise $\epsilon_i$ in the reconstructed and noisy input $\hat{z_i}$ c
 \end{align}
 \end{subequations}
 
-As $z_i$ is used in the computation of layer $i$'s weight gradients according to equation XXX,
+As $z_i$ is used in the computation of layer $i$'s weight gradients according to equation 4,
 accumulated errors yield noisy gradients which prevent the network from converging as the SNR reaches certain levels.
 Hence, it is important to characterize the factor $\alpha$ for the different invertible layers proposed below.
 
@@ -664,7 +664,8 @@ Hence, it is important to characterize the factor $\alpha$ for the different inv
 
 As batch normalization is not a bijective operation, it does not admit an analytical inverse.
 However, the inverse reconstruction of a batch normalization layer can be realized with minimal memory cost.
-Given first and second order moment parameters $\beta$ and $\gamma$, the forward $f$ and inverse $f^{-1}$ operation of an invertible batch normalization layer can be computed as follows:
+Given first and second order moment parameters $\beta$ and $\gamma$, the forward $f$ and inverse $f^{-1}$
+operation of an invertible batch normalization layer can be computed as follows:
 
 \begin{subequations}
 \begin{align}
@@ -674,102 +675,31 @@ x = f^{-1}(y, \hat{x}, \dot{x}) &= (\sqrt{\dot{x}} + \epsilon) \times \frac{y - 
 \end{subequations}
 
 Where $\hat{x}$ and $\dot{x}$ represent the mean and variance of $x$ respectively.
-Hence, the input activation $x$ can be recovered from $y$ through $f^{-1}$ at the minimal memory cost of storing the input activation statistics $\hat{x}$ and $\dot{x}$.
+Hence, the input activation $x$ can be recovered from $y$ through $f^{-1}$ at the minimal memory cost
+of storing the input activation statistics $\hat{x}$ and $\dot{x}$.
 
-To illustrate the mechanism through which the batch normalization inverse operation reduces the SNR,
-let us consider a toy layer with only two channels and parameters $\beta=[0,0]$ and $\gamma = [1, \rho]$.
-For simplicity, let us consider an input signal $x$ independently and identically distributed across both channels
-with zero mean and standard deviation 1 so that, in the forward pass, we have:
+The formula for the SNR reduction factor of the batch normalization is given below:
 
-\begin{subequations}
-\begin{align}
- y =& [y_0, y_1] \\
-   =& [x_0, x_1 \times \rho] \\
-|y|^2 =& |x_0|^2 + |x_1|^2 \times \rho^2 \\
-      =& \frac{1}{2} \times |x|^2 + \frac{1}{2} \times |x|^2 \times \rho^2 \\
-      =& \frac{|x|^2}{2} \times (1+\rho^2)
-\end{align}
-\end{subequations}
+\begin{equation}
+\alpha = \frac{\sum_i (\hat{x}_i^2 + \dot{x_i})}{\sum_i (\gamma_i^2 + \beta_i^2)} \times \frac{c}{\sum_i \frac{\sqrt{\dot{x_i}}+\epsilon}{\gamma_i}}
+\end{equation}
 
-In which we used the assumption that $x$ is independently and identically distributed across both channels
-to factorize $|x_0|^2 = |x_1|^2 = \frac{1}{2} \times |x|^2$ in equation (17d).
-
-During the backward pass, the noisy estimate $\tilde{y}=y+\epsilon^y$ is fed back as input to the inverse operation.
-Similarly, let us suppose a noise $\epsilon^y$ identically distributed across both channels so that we have:
-
-\begin{subequations}
-\begin{align}
-\tilde{y}       =& [ \tilde{y}_0, \tilde{y}_1 ] \\
-                =& [ x_0 + \epsilon_0^y, x_1 \times \rho + \epsilon_1^y ] \\
-\tilde{x}       =& [ \tilde{y}_0, \frac{\tilde{y}_1}{\rho}] \\
-                =& [ x_0 + \epsilon_{0}^y, x_1 + \frac{\epsilon_{1}^y}{\rho} ]\\
-\epsilon^x      =& \tilde{x} - x\\
-                =& [ \epsilon_0^y, \frac{\epsilon_{1}^y}{\rho} ]\\
-|\epsilon^x|^2  =& |\epsilon_0^y|^2 + \frac{|\epsilon_1^y|^2}{\rho^2} \\
-                =& \frac{1}{2} \times |\epsilon^y|^2 + \frac{1}{2} \times \frac{|\epsilon^y|^2}{\rho^2} \\
-                =& \frac{|\epsilon^y|^2}{2} \times (1 + \frac{1}{\rho^2})
-\end{align}
-\end{subequations}
-
-Using the above formulation, the SNR reduction factor $\alpha$ can be expressed as:
-
-\begin{subequations}
-\begin{align}
-\alpha =& \frac{snr_i}{snr_o} \\
- =& \frac{|x|^2}{|\epsilon^x|^2} \times  \frac{|\epsilon^y|^2}{|y|^2} \\
- =& \frac{4}{(1+\frac{1}{\rho^2}) \times (1 + \rho^2)}
-\end{align}
-\end{subequations}
-
-Figure 5 shows the expected evolution of $\alpha$ through our toy layer for different values of the factor $\rho$.
-To validate our formula, we empirically evaluate $\alpha$ for normal Gaussian inputs $x$ and output noise $\epsilon^y$ and find it to closely match the theoretical results given by equation 19.
+In which $c$ represents the number of channels. The full proof of this formula is given in the appendix.
+The only assumption made by this proof is that both the input $x$ and output noise
+$\epsilon^y$ are identically distributed across all channels,
+which we have found to hold true in practice.
 
 In essence, numerical instabilities in the inverse computation of the batch normalization layer arise
 from the fact that the signal across different channels $i$ and $j$ are amplified by different factors $\gamma_i$ and $\gamma_j$.
 While the signal amplification in the forward and inverse path cancel out each other ($x=f^{-1}(f(x))$),
-the noise only gets amplified in the backward pass.
+the noise only gets amplified in the backward pass, which degrades the reconstructed signal.
 
-In the above demonstration, we have used a toy parameterization of the invertible batch normalization layer to illustrate the mechanism behind the SNR degradation.
-For arbitrarily parameterized batch normalization layers, the SNR degradation factor becomes:
-
-\begin{subequations}
-\begin{align}
-\alpha =& \frac{snr_i}{snr_o} \\
-       =& \frac{|x|^2}{|\epsilon^x|^2} \times  \frac{|\epsilon^y|^2}{|y|^2} \\
-       =& \frac{|x|^2}{|y|^2} \times  \frac{|\epsilon^y|^2}{|\epsilon^x|^2}
-\end{align}
-\end{subequations}
-
-Assuming a noise $\epsilon^y$, equally distributed across all channels, the noise ratio can be computed as follows:
-
-\begin{subequations}
-\begin{align}
-\tilde{y}_i  =& \gamma_i \times \frac{x_i - \hat{x_i}}{\sqrt{\dot{x_i}} + \epsilon} + \beta_i + \epsilon^y_i\\
-\tilde{x}_i  =& (\sqrt{\dot{x_i}} + \epsilon) \times \frac{\tilde{y}_i -  \beta_i}{\gamma_i}  + \hat{x_i} \\
-             =& x_i + \frac{\sqrt{\dot{x_i}}+\epsilon}{\gamma_i} \times \epsilon^y_i \\
-\epsilon^x_i =& \tilde{x}_i - x_i\\
-             =& \frac{\sqrt{\dot{x_i}}+\epsilon}{\gamma_i} \times \epsilon^y_i\\
-\frac{|\epsilon^y|^2}{|\epsilon^x|^2} =& \frac{|\epsilon^y|^2}{\frac{|\epsilon^y|^2}{c} \times \sum_i \frac{\dot{x_i}^2}{\gamma_i^2}} \\
-                                      =& \frac{c}{\sum_i \frac{\sqrt{\dot{x_i}}+\epsilon}{\gamma_i}}
-\end{align}
-\end{subequations}
-
-Assuming input $x$ following a Gaussian distribution with channel-wise mean $\hat{x_i}$ and variance $\dot{x_i}$,
-the SNR reduction factor $\alpha$ becomes:
-
-\begin{subequations}
-\begin{align}
-\frac{|x|^2}{|y|^2} =& \frac{\sum_i |x_i|^2}{\sum_i|y_i|^2} \\
-                    =& \frac{\sum_i (\hat{x}_i^2 + \dot{x_i})}{\sum_i (\gamma_i^2 + \beta_i^2)} \\
-\alpha =& \frac{|x|^2}{|y|^2} \times  \frac{|\epsilon^y|^2}{|\epsilon^x|^2}  \\
-       =& \frac{\sum_i (\hat{x}_i^2 + \dot{x_i})}{\sum_i (\gamma_i^2 + \beta_i^2)} \times \frac{c}{\sum_i \frac{\sqrt{\dot{x_i}}+\epsilon}{\gamma_i}}
-\end{align}
-\end{subequations}
-
-%The full proof of this formula is given in the appendix and follows the same reasoning as for the toy parametrization.
-%The only assumption made by this proof is that both the input $x$ and output noise $\epsilon^y$ are identically distributed across all channels, which we found to hold true in practice.
-%We verify the validity of equation (22c) by empirically evaluating the different $\alpha$ ratio yielded by randomly initialized batch normalization layers with input values and output noise randomly drawn from Gaussian distribution.
-%Figure 5 plots the empirically found $\alpha$ values against the theoretical values predicted by our formula and show a close match.
+We verify the validity of equation (22c) by empirically evaluating the different $\alpha$ ratio yielded by a
+toy parameterization of the batch normalization using only two channels with parameters and $\gamma = [1, \rho]$.
+This toy parameterization has been used by the proof in the appendix.
+The factor $\rho$ there represents the imbalance in the multiplicative factor between both channels.
+Figure 5 shows the expected evolution of $\alpha$ through our toy layer for different values of the factor $\rho$.
+and find it to closely match the theoretical results we derived.
 
 Finally, we propose the following modification, introducing the hyperparameter $\epsilon_i$, to the invertible batch normalization layer:
 
@@ -782,7 +712,8 @@ x = f^{-1}(y) &= (\sqrt{\dot{x}} + \epsilon) \times \frac{y -  \beta}{|\gamma + 
 
 The introduction of the $\epsilon_i$ hyper parameter serves two purposes:
 First, it stabilizes the numerical errors described above by lower bounding the smallest $\gamma$ parameters.
-Second, it prevents numerical instabilities that would otherwise arise from the inverse computation as $\gamma$ parameters tend towards zero.
+Second, it prevents numerical instabilities that would otherwise
+arise from the inverse computation as $\gamma$ parameters tend towards zero.
 
 \subsubsection{Invertible activation function}
 
@@ -802,64 +733,12 @@ y \times n, & \text{otherwise}
 \end{align}
 \end{subequations}
 
-The analysis of the numerical errors yielded by the invertible Leaky ReLU follows a similar reasoning as the toy batch normalization example with an additional subtlety:
-Similar to the toy batch normalization example, we can think of the leaky ReLU as artificially splitting the input x across two different channels,
-one channel leaving the output unchanged and one channel that divides the input by a factor $n$ during the forward pass and multiplies its output by a factor $n$ during the backward pass.
+As derived in the appendix, and following a similar proof to the batch normalization,
+we find the below formula for the SNR reduction factor:
 
-However, these artificial channels are defined by the sign of the input and output during the forward and backward pass respectively.
-Hence, we need to consider the cases in which the noise flips the sign of the output activations,
-which leads to different behaviors of the invertible Leaky ReLU across four cases:
-
-\begin{subequations}
-\begin{align}
-y = \begin{cases}
-y_{nn} \  \text{if}\  \hat{y}<0    &\text{and}\  y<0  \\
-y_{np} \  \text{if}\  \hat{y}>=0   &\text{and}\  y<0  \\
-y_{pp} \  \text{if}\  \hat{y}>=0   &\text{and}\  y>=0 \\
-y_{pn} \  \text{if}\  \hat{y}<0    &\text{and}\  y>=1
-\end{cases}
-\end{align}
-\end{subequations}
-
-Where the index $np$, for instance, represents negative activations whose reconstructions have become positive due to the added noise.
-The signal to noise ratio of the input and outputs can be expressed respectively as:
-
-In the case where $y >> \epsilon_y$, the probability of sign flips ($y_{np}$, $y_{pn}$) is negligible,
-so that the output signal $y$ is evenly split along $y_{pp}$ and $y_{nn}$.
-In this regime, the degradation of the SNR obeys a formula similar to the toy batch normalization example:
-
-\begin{subequations}
-\begin{align}
- y =& [y_{pp}, y_{nn}] \\
-   =& [x_{pp}, \frac{x_{nn}}{n}] \\
- |y|^2 =& \frac{1}{2} \times |x|^2 + \frac{1}{2} \times \frac{|x|^2}{n^2} \\
-       =&\frac{|x|^2}{2} \times (1+\frac{1}{n^2})
-\end{align}
-\end{subequations}
-
-\begin{subequations}
-\begin{align}
-\tilde{y}       =& [ \tilde{y}_{pp}, \tilde{y}_{nn}] \\
-                =& [ x_{pp} + \epsilon_{pp}^y, \frac{x_{nn}}{n} + \epsilon_{nn}^y ] \\
-\tilde{x}       =& [ \tilde{y}_{pp}, \tilde{y}_{nn} \times n] \\
-                =& [ x_{pp} + \epsilon_{pp}^y, x_{nn} + \epsilon_{nn}^y \times n  ]\\
-\epsilon^x      =& \tilde{x} - x\\
-                =& [ \epsilon_{pp}^y, \epsilon_{nn}^y \times n ]\\
-|\epsilon^x|^2  =& \frac{1}{2} \times |\epsilon^y|^2 + \frac{1}{2} \times |\epsilon^y|^2 \times n^2 \\
-                =& \frac{|\epsilon^y|^2}{2} \times (1 + n^2)
-\end{align}
-\end{subequations}
-
-Using the above formulation, the signal to noise ratio reduction factor $\alpha$ can be expressed as:
-
-\begin{subequations}
-\begin{align}
-\alpha =& \frac{snr_i}{snr_o} \\
-       =& \frac{|x|^2}{|\epsilon^x|^2} \times  \frac{|\epsilon^y|^2}{|y|^2} \\
-       =& \frac{4}{(1+\frac{1}{n^2}) \times (1 + n^2)}
-\end{align}
-\end{subequations}
-
+\begin{equation}
+\alpha = \frac{4}{(1+\frac{1}{n^2}) \times (1 + n^2)}
+\end{equation}
 
 Hence numerical errors can be controlled by setting the value of the negative slope $n$.
 As $n$ tends towards $1$, $\alpha$ converges to $1$, yielding minimum signal degradation.
@@ -867,10 +746,10 @@ However, as $n$ tends towards $1$, the network tends toward a linear behavior, w
 Figure 6 shows the evolution of the SNR degradation $\alpha$ for different negative slopes $n$;
 and, in Section 5.1, we investigate the impact of the negative slope parameter on the model accuracy.
 
-When the noise reaches an amplitude similar to or greater than the activation signal,
-the effects of sign flips complicate the equation.
+It should be noted that this equation only holds for the regime $|y|^2 >> |\epsilon_y|^2$.
+When the noise reaches an amplitude similar to or greater than the activation signal, this equation no longer holds.
 However, in this regime, the signal to noise ratio becomes too low for training to converge,
-as numerical errors prevent any useful weight update, so we leave the problem of characterizing this regime open.
+as numerical errors prevent any useful weight update, so we have left the problem of characterizing this regime open.
 
 \subsubsection{Invertible convolutions}
 
@@ -1116,6 +995,165 @@ We would be happy to thank reviewers for useful feedback.
 
 \bibliographystyle{bmc-mathphys}
 \bibliography{bmc_article}
+
+\section*{APPENDIX}
+\subsection*{Proof of Batch Normalization Results}
+
+To illustrate the mechanism through which the batch normalization inverse operation reduces the SNR,
+let us consider a toy layer with only two channels and parameters $\beta=[0,0]$ and $\gamma = [1, \rho]$.
+For simplicity, let us consider an input signal $x$ independently and identically distributed across both channels
+with zero mean and standard deviation 1 so that, in the forward pass, we have:
+
+\begin{subequations}
+\begin{align}
+ y =& [y_0, y_1] \\
+   =& [x_0, x_1 \times \rho] \\
+|y|^2 =& |x_0|^2 + |x_1|^2 \times \rho^2 \\
+      =& \frac{1}{2} \times |x|^2 + \frac{1}{2} \times |x|^2 \times \rho^2 \\
+      =& \frac{|x|^2}{2} \times (1+\rho^2)
+\end{align}
+\end{subequations}
+
+In which we used the assumption that $x$ is independently and identically distributed across both channels
+to factorize $|x_0|^2 = |x_1|^2 = \frac{1}{2} \times |x|^2$ in equation (17d).
+
+During the backward pass, the noisy estimate $\tilde{y}=y+\epsilon^y$ is fed back as input to the inverse operation.
+Similarly, let us suppose a noise $\epsilon^y$ identically distributed across both channels so that we have:
+
+\begin{subequations}
+\begin{align}
+\tilde{y}       =& [ \tilde{y}_0, \tilde{y}_1 ] \\
+                =& [ x_0 + \epsilon_0^y, x_1 \times \rho + \epsilon_1^y ] \\
+\tilde{x}       =& [ \tilde{y}_0, \frac{\tilde{y}_1}{\rho}] \\
+                =& [ x_0 + \epsilon_{0}^y, x_1 + \frac{\epsilon_{1}^y}{\rho} ]\\
+\epsilon^x      =& \tilde{x} - x\\
+                =& [ \epsilon_0^y, \frac{\epsilon_{1}^y}{\rho} ]\\
+|\epsilon^x|^2  =& |\epsilon_0^y|^2 + \frac{|\epsilon_1^y|^2}{\rho^2} \\
+                =& \frac{1}{2} \times |\epsilon^y|^2 + \frac{1}{2} \times \frac{|\epsilon^y|^2}{\rho^2} \\
+                =& \frac{|\epsilon^y|^2}{2} \times (1 + \frac{1}{\rho^2})
+\end{align}
+\end{subequations}
+
+Using the above formulation, the SNR reduction factor $\alpha$ can be expressed as:
+
+\begin{subequations}
+\begin{align}
+\alpha =& \frac{snr_i}{snr_o} \\
+ =& \frac{|x|^2}{|\epsilon^x|^2} \times  \frac{|\epsilon^y|^2}{|y|^2} \\
+ =& \frac{4}{(1+\frac{1}{\rho^2}) \times (1 + \rho^2)}
+\end{align}
+\end{subequations}
+
+In essence, numerical instabilities in the inverse computation of the batch normalization layer arise
+from the fact that the signal across different channels $i$ and $j$ are amplified by different factors $\gamma_i$ and $\gamma_j$.
+While the signal amplification in the forward and inverse path cancel out each other ($x=f^{-1}(f(x))$),
+the noise only gets amplified in the backward pass.
+
+In the above demonstration, we have used a toy parameterization of the invertible batch normalization layer to illustrate the mechanism behind the SNR degradation.
+For arbitrarily parameterized batch normalization layers, the SNR degradation factor becomes:
+
+\begin{subequations}
+\begin{align}
+\alpha =& \frac{snr_i}{snr_o} \\
+       =& \frac{|x|^2}{|\epsilon^x|^2} \times  \frac{|\epsilon^y|^2}{|y|^2} \\
+       =& \frac{|x|^2}{|y|^2} \times  \frac{|\epsilon^y|^2}{|\epsilon^x|^2}
+\end{align}
+\end{subequations}
+
+Assuming a noise $\epsilon^y$, equally distributed across all channels, the noise ratio can be computed as follows:
+
+\begin{subequations}
+\begin{align}
+\tilde{y}_i  =& \gamma_i \times \frac{x_i - \hat{x_i}}{\sqrt{\dot{x_i}} + \epsilon} + \beta_i + \epsilon^y_i\\
+\tilde{x}_i  =& (\sqrt{\dot{x_i}} + \epsilon) \times \frac{\tilde{y}_i -  \beta_i}{\gamma_i}  + \hat{x_i} \\
+             =& x_i + \frac{\sqrt{\dot{x_i}}+\epsilon}{\gamma_i} \times \epsilon^y_i \\
+\epsilon^x_i =& \tilde{x}_i - x_i\\
+             =& \frac{\sqrt{\dot{x_i}}+\epsilon}{\gamma_i} \times \epsilon^y_i\\
+\frac{|\epsilon^y|^2}{|\epsilon^x|^2} =& \frac{|\epsilon^y|^2}{\frac{|\epsilon^y|^2}{c} \times \sum_i \frac{\dot{x_i}^2}{\gamma_i^2}} \\
+                                      =& \frac{c}{\sum_i \frac{\sqrt{\dot{x_i}}+\epsilon}{\gamma_i}}
+\end{align}
+\end{subequations}
+
+Assuming input $x$ following a Gaussian distribution with channel-wise mean $\hat{x_i}$ and variance $\dot{x_i}$,
+the SNR reduction factor $\alpha$ becomes:
+
+\begin{subequations}
+\begin{align}
+\frac{|x|^2}{|y|^2} =& \frac{\sum_i |x_i|^2}{\sum_i|y_i|^2} \\
+                    =& \frac{\sum_i (\hat{x}_i^2 + \dot{x_i})}{\sum_i (\gamma_i^2 + \beta_i^2)} \\
+\alpha =& \frac{|x|^2}{|y|^2} \times  \frac{|\epsilon^y|^2}{|\epsilon^x|^2}  \\
+       =& \frac{\sum_i (\hat{x}_i^2 + \dot{x_i})}{\sum_i (\gamma_i^2 + \beta_i^2)} \times \frac{c}{\sum_i \frac{\sqrt{\dot{x_i}}+\epsilon}{\gamma_i}}
+\end{align}
+\end{subequations}
+
+
+\subsection*{Proof of Activation Function Results}
+
+The analysis of the numerical errors yielded by the invertible Leaky ReLU
+follows a similar reasoning as the toy batch normalization example with an additional subtlety:
+Similar to the toy batch normalization example,
+we can think of the leaky ReLU as artificially splitting the input x across two different channels,
+one channel leaving the output unchanged and one channel that divides the input by a factor $n$
+during the forward pass and multiplies its output by a factor $n$ during the backward pass.
+
+However, these artificial channels are defined by the sign of the input and output during the forward and backward pass respectively.
+Hence, we need to consider the cases in which the noise flips the sign of the output activations,
+which leads to different behaviors of the invertible Leaky ReLU across four cases:
+
+\begin{subequations}
+\begin{align}
+y = \begin{cases}
+y_{nn} \  \text{if}\  \hat{y}<0    &\text{and}\  y<0  \\
+y_{np} \  \text{if}\  \hat{y}>=0   &\text{and}\  y<0  \\
+y_{pp} \  \text{if}\  \hat{y}>=0   &\text{and}\  y>=0 \\
+y_{pn} \  \text{if}\  \hat{y}<0    &\text{and}\  y>=1
+\end{cases}
+\end{align}
+\end{subequations}
+
+Where the index $np$, for instance, represents negative activations whose reconstructions have become positive due to the added noise.
+The signal to noise ratio of the input and outputs can be expressed respectively as:
+
+In the case where $y >> \epsilon_y$, the probability of sign flips ($y_{np}$, $y_{pn}$) is negligible,
+so that the output signal $y$ is evenly split along $y_{pp}$ and $y_{nn}$.
+In this regime, the degradation of the SNR obeys a formula similar to the toy batch normalization example:
+
+\begin{subequations}
+\begin{align}
+ y =& [y_{pp}, y_{nn}] \\
+   =& [x_{pp}, \frac{x_{nn}}{n}] \\
+ |y|^2 =& \frac{1}{2} \times |x|^2 + \frac{1}{2} \times \frac{|x|^2}{n^2} \\
+       =&\frac{|x|^2}{2} \times (1+\frac{1}{n^2})
+\end{align}
+\end{subequations}
+
+\begin{subequations}
+\begin{align}
+\tilde{y}       =& [ \tilde{y}_{pp}, \tilde{y}_{nn}] \\
+                =& [ x_{pp} + \epsilon_{pp}^y, \frac{x_{nn}}{n} + \epsilon_{nn}^y ] \\
+\tilde{x}       =& [ \tilde{y}_{pp}, \tilde{y}_{nn} \times n] \\
+                =& [ x_{pp} + \epsilon_{pp}^y, x_{nn} + \epsilon_{nn}^y \times n  ]\\
+\epsilon^x      =& \tilde{x} - x\\
+                =& [ \epsilon_{pp}^y, \epsilon_{nn}^y \times n ]\\
+|\epsilon^x|^2  =& \frac{1}{2} \times |\epsilon^y|^2 + \frac{1}{2} \times |\epsilon^y|^2 \times n^2 \\
+                =& \frac{|\epsilon^y|^2}{2} \times (1 + n^2)
+\end{align}
+\end{subequations}
+
+Using the above formulation, the signal to noise ratio reduction factor $\alpha$ can be expressed as:
+
+\begin{subequations}
+\begin{align}
+\alpha =& \frac{snr_i}{snr_o} \\
+       =& \frac{|x|^2}{|\epsilon^x|^2} \times  \frac{|\epsilon^y|^2}{|y|^2} \\
+       =& \frac{4}{(1+\frac{1}{n^2}) \times (1 + n^2)}
+\end{align}
+\end{subequations}
+
+When the noise reaches an amplitude similar to or greater than the activation signal,
+the effects of sign flips complicate the equation.
+However, in this regime, the signal to noise ratio becomes too low for training to converge,
+as numerical errors prevent any useful weight update, so we leave the problem of characterizing this regime open.
 
 \section*{FIGURE LEGEND}
 
