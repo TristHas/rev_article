@@ -96,7 +96,7 @@
 \author[
    addressref={aff3},
    noteref={n1},
-   email={quentin.febvre@gmail.com}
+   email={quentin.febvre@imt-atlantique.fr}
 ]{\inits{QF}\fnm{Quentin} \snm{Febvre}}
 \author[
    addressref={aff1,aff2},
@@ -133,10 +133,10 @@
 }
 
 \address[id=aff3]{
-  \orgname{Sicara},
-  \street{48 Bd des Batignolles},
-  \postcode{75017}
-  \city{Paris},
+  \orgname{IMT Atlantique},
+  \street{655 Avenue du Technopôle},
+  \postcode{29280}
+  \city{Plouzané},
   \cny{France}
 }
 
@@ -167,7 +167,8 @@
 \begin{abstractbox}
 \begin{abstract} % abstract
 Training Convolutional Neural Networks (CNN) is a resource intensive task that requires specialized hardware for efficient computation.
-One of the most limiting bottleneck of CNN training is the memory cost associated with storing the activation values of hidden layers needed for the computation of the weights gradient during the backward pass of the backpropagation algorithm.
+One of the most limiting bottleneck of CNN training is the memory cost associated with storing the activation values of hidden layers.
+These values are needed for the computation of the weights' gradient during the backward pass of the backpropagation algorithm.
 Recently, reversible architectures have been proposed to reduce the memory cost of training large CNN by reconstructing the input activation values of hidden layers from their output during the backward pass, circumventing the need to accumulate these activations in memory during the forward pass.
 In this paper, we push this idea to the extreme and analyze reversible network designs yielding minimal training memory footprint.
 We investigate the propagation of numerical errors in long chains of invertible operations and analyze their effect on training.
@@ -330,7 +331,7 @@ MobileNet \cite{howard2017mobilenets} uses depth-wise separable convolutions to 
 % Pruning & lottery ticket
 Network pruning \cite{molchanov2016pruning} is a set of techniques developed to decrease the model weight size and computational complexity.
 Network pruning works by removing the network weights that contribute the least to the model output.
-Pruning deep models has been shown to drastically reduce the memory cost and computational cost of inference without  significantly hurting model accuracy.
+Pruning deep models has been shown to drastically reduce the memory cost and computational cost of inference without significantly hurting model accuracy.
 Although pruning has been concerned with optimization of the resource inference, the recently proposed lottery ticket hypothesis \cite{frankle2018lottery} has shown that specifically pruned networks could be trained from scratch to high accuracy.
 This may be an interesting and complementary line of work to investigate in the future to reduce training memory costs.
 
@@ -338,6 +339,10 @@ This may be an interesting and complementary line of work to investigate in the 
 Low precision arithmetic has been proposed as a mean to reduce both memory consumption and computation time of deep learning models. Mixed precision training \cite{micikevicius2017mixed} combines FP16 with FP32 operations to avoid numerical instabilities due to either overflow or underflow.
 For inference, integer quantization \cite{jacob2018quantization,wu2018training} has been shown to drastically improve the computation and memory efficiency and has been successfully deployed on both edge devices and data centers.
 Integrating mixed-precision training to our proposed architecture would allow us to further reduce training memory costs.
+
+% Gradient Accumulation
+Accumulating the weights' gradients over multiple batches is used to increase the effective batch size during the training with constant memory requirements.
+Although this method allows for training on arbitrary large batch sizes, it does not reduce the memory requirements for training on a single batch.
 
 % Gradient checkpointing
 Most related to our work, gradient checkpointing was introduced as a mean to reduce the memory cost of deep neural network training.
@@ -409,12 +414,13 @@ In such architectures, activation do not need to be kept in memory during the fo
 
 We denote the memory footprint of training a neural network as a value $\mathcal{M}$ in bytes.
 Given an input $x$ and ground truth label $\bar{y}$, the memory footprint represents the peak memory consumption during an iteration of training including the forward and backward pass.
-We divide the total training memory footprint $\mathcal{M}$ into several memory cost factors: the cost $M_{\theta}$ of storing the model weights, the hidden activations  $M_{z}$, and the gradients $M_{g}$:
+We divide the total training memory footprint $\mathcal{M}$ into several memory cost factors: the cost $M_{\theta}$ of storing the model weights, the hidden activations  $M_{z}$, and the hidden activations' gradients $M_{g}$:
 
 \begin{equation}
 \mathcal{M} = M_{\theta} + M_{z} + M_{g}
 \end{equation}
 
+We choose not to include the cost of storing the gradients of the weights in our analysis since their accumulation has more to do with the implementation details of current differentiable frameworks than with algorithmic necessity.
 In the following subsections, we detail the memory footprint of existing architectures with different reversibility patterns.
 To help us formalize these memory costs, we further introduce the following notations:
 let $n(x)$ denote the number of elements in a tensor $x$, i.e.; if $x$ is an $h \times w$ matrix, then $n(x)=h \times w$.
@@ -424,7 +430,7 @@ We use $bs$ to denote the batch size, and $c_i$ to denote the number of channels
 
 It should be noted that the memory cost of the activations and the gradients are proportional to the size of the input image batch:
 Training a CNN on twice larger input image batch sizes or twice higher resolution requires twice more memory.
-Thus theses costs, for a given architectures, are better characterized in bytes per input pixels,
+Thus, these costs, for a given architecture, are better characterized in bytes per input pixels,
 which we denote $M_{z}'$ and $M_{g}'$ respectively, and are defined by:
 
 \begin{subequations}
@@ -481,9 +487,9 @@ Hence, the memory footprint of the gradients correspond to the memory cost of st
 
 \begin{subequations}
 \begin{align}
-M_{g}  &= max(n(g_{i-1}), n(g_i)) \times bpe \\
-       &= h \times w \times bs \times p_i \times max(c_{i-1}, c_i) \times bpe\\
-M_{g}' &= p_i \times max(c_{i-1}, c_i) \times bpe
+M_{g}  &= max(n(g_{N-1}), n(g_N)) \times bpe \\
+       &= h \times w \times bs \times p_i \times max(c_{N-1}, c_N) \times bpe\\
+M_{g}' &= p_i \times max(c_{N-1}, c_N) \times bpe
 \end{align}
 \end{subequations}
 
@@ -585,15 +591,15 @@ For an initial channel size of 32, as summarized in Table 1, the peak memory con
 \end{subequations}
 
 Training such an architecture for an iteration over batches of 32 images of resolution $240 \times 240$ would require $\mathcal{M}=1.35$GB of VRAM.
-In the next section, we introduce both layer-wise reversibility and a variant on this pooling operations to address the local memory bottleneck
-of reversible blocks and the weight memory bottleneck respectively.
+In the next section, we introduce both layer-wise reversibility, and a variant on this pooling operations to address the local memory bottleneck
+of reversible blocks, and the weight memory bottleneck respectively.
 
 \section{Method}
 
 RevNet and iRevNet architectures implement reversible transformations at the level of residual blocks.
 As we have seen in the previous section, the design of these reversible blocks create a local memory bottleneck as all hidden activations within a reversible block need to be computed before the gradients are backpropagated through the block.
 In order to circumvent this local bottleneck, we introduce layer-wise invertible operations.
-However, these invertible operations introduce numerical error, which we characterize in the following subsections.
+However, these invertible operations introduce numerical errors, which we characterize in the following subsections.
 In Section 5, we will show that these numerical errors lead to instabilities that degrade the model accuracy.
 Hence, in Section 4.2, we propose a hybrid model combining layer-wise and residual block-wise reversible operations to stabilize training while resolving the local memory bottleneck at the cost of a small additional computational cost.
 
@@ -617,9 +623,9 @@ given the value of its output $y$ using its inverse function:
    \end{align}
  \end{subequations}
 
-In reality, however, the output recovered by upstream invertible layers is a noisy estimate $\hat{y}=y+\epsilon_y$
-of the true output due to numerical errors introduced by upstream layers.
-Hence, the noisy input $\hat{x}$ reconstructed by the inverse operation contains a noise $\epsilon_x$ due to the noise $\epsilon_y$ in the output:
+
+In reality, however, the output of the network is an approximation of its true analytical value due to floating point numbers' precision $\hat{y}=y+\epsilon_y$.
+Hence, the noisy input $\hat{x}$ reconstructed by the inverse operation contains a noise $\epsilon_x$ due to the noise $\epsilon_y$ in the output, and the error propagates through the successive inverse computations.
 
  \begin{subequations}
    \begin{align}
@@ -656,7 +662,7 @@ Hence, the noise $\epsilon_i$ in the reconstructed and noisy input $\hat{z_i}$ c
 \end{align}
 \end{subequations}
 
-As $z_i$ is used in the computation of layer $i$'s weight gradients according to equation 4,
+As $z_i$ is used in the computation of layer $i$'s weights' gradients according to equation 4,
 accumulated errors yield noisy gradients which prevent the network from converging as the SNR reaches certain levels.
 Hence, it is important to characterize the factor $\alpha$ for the different invertible layers proposed below.
 
@@ -966,7 +972,7 @@ In this paper, we have presented an architecture able to yield high accuracy cla
 We highlighted several potential applications of memory-efficient training procedures, such as on-device training,
 and illustrated the efficiency of our approach by training a CNN to 93.3\% accuracy on a low-end GPU with only 1GB of memory.
 
-\section*{Abreviation}
+\section*{Abbreviation}
 
 CNN: Convolutional Neural Network  \\
 SNR: Signal to Noise Ratio \\
