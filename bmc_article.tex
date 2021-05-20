@@ -602,7 +602,7 @@ of reversible blocks, and the weight memory bottleneck respectively.
 \section{Method}
 
 RevNet and iRevNet architectures implement reversible transformations at the level of residual blocks.
-As we have seen in the previous section, the design of these reversible blocks create a local memory bottleneck
+As we have seen in the previous section, the design of these reversible blocks creates a local memory bottleneck
 as all hidden activations within a reversible block need to be computed before the gradients are backpropagated through the block.
 In order to circumvent this local bottleneck, we introduce layer-wise invertible operations in Section 4.2.
 However, these invertible operations introduce numerical errors, which we characterize in the following subsections.
@@ -662,7 +662,7 @@ Hence, the noise $\epsilon_i$ in the reconstructed and noisy input $\hat{z_i}$ c
 \begin{subequations}
 \begin{align}
 \hat{z_i}  &= z_i + \epsilon_i \\
-\hat{z_i}  &=  f_i^{-1} \circ f_{i+1}^{-1} \circ ... \circ f_N(\hat{y})\\
+\hat{z_i}  &=  f_i^{-1} \circ f_{i+1}^{-1} \circ ... \circ f_N^{-1}(\hat{y})\\
 | \epsilon_i |^2 &=  \frac{| \epsilon_y |^2 \times | z_i |^2}{| y |^2} \times \prod_i^{N} \alpha_j
 \end{align}
 \end{subequations}
@@ -820,7 +820,7 @@ of channels at each pooling level of the model's architecture.
 As this pooling operation only performs a reshaping between input and output,
 it does not induce any numerical error: $\alpha_{Pool}=1$
 
-\subsubsection{Layer-wise invertible architecture}
+\subsection{Layer-wise invertible architecture}
 
 Putting together the above building blocks, Figure 7 illustrates a layer-wise invertible architecture.
 The peak memory usage for a training iteration of this architecture, as parameterized in Table 1, can be computed as follows:
@@ -841,14 +841,14 @@ As analyzed in the previous section, the numerical errors in this architecture a
 Following equation 19, the numerical error associated with the activations at a given layer $i$ in this architecture can thus be approximated by:
 
 \begin{equation}
-\epsilon_i |^2 =  \frac{| \epsilon_y |^2 \times | z_i |^2}{| y |^2} \times \prod_i^{N} \alpha_{LReLU} \times \alpha_{BN} \\
+\epsilon_i |^2 =  \frac{| \epsilon_y |^2 \times | z_i |^2}{| y |^2} \times \prod_i^{N} (\alpha_{LReLU} \times \alpha_{BN}) \\
 \end{equation}
 
 In which $N$ represents the number of Batch Normalization and Leaky ReLU layers between the layer $i$ and the output.
 
 \subsection{Hybrid architecture}
 
-In section 3, we saw that layer-wise activation and normalization layers degrade the signal to noise ratio of the reconstructed activations.
+In section 4.1, we saw that layer-wise activation and normalization layers degrade the signal to noise ratio of the reconstructed activations.
 In section 5.1, we will quantify the accumulation of numerical errors through long chains of layer-wise invertible operations
 and show that numerical errors negatively impact model accuracy.
 
@@ -904,37 +904,37 @@ than in Batch Normalization $\alpha_{Rev} \ll \alpha_{BN}$ and Leaky ReLU layers
 
 \section{Results and Discussion}
 
-This sections is organized in two parts:
+This section is organized in two parts:
 First, we start by analyzing numerical errors arising in both the layer-wise invertible and hybrid architectures.
-Second, we compare our hybrid architectures to existing models.
+Second, we compare our hybrid architecture to existing models. 
 
-All our experiments use the CIFAR10 dataset as a benchmark.
+All our experiments use the CIFAR10 dataset as a benchmark. 
 The CIFAR10 dataset is complex enough to require efficient architectures to reach high accuracy,
 yet small enough to enable us to rapidly iterate over different architectural designs.
 
 Unless stated otherwise, all models were trained for 50 epochs of stochastic gradient descent with cyclical learning rate
-and momentum \cite{smith2017super} with minimal image augmentation.
+and momentum \cite{smith2017super} with minimal image augmentation. The code used to produce the results is available here: https://github.com/TristHas/reversibility_paper. 
 
 \subsection{Impact of Numerical stability}
 
 The idea of layer-wise invertibility is attractive for it maximally reduces the memory-footprint of CNN training
 by bypassing the local bottleneck of architectures based on reversible blocks (i.e. RevNet or iRevNet).
 Unfortunately, we will show in this section that deep architectures based only on layer-wise invertibility
-can not be successful trained due to numerical errors preventing the model from converging to high quality solutions.
+cannot be successfully trained due to numerical errors preventing the model from converging to high quality solutions.
 Instead, layer-wise invertibility can be combined with reversible block-level invertibility to get the best of both world:
 Reversible blocks allow for long chain of reconstruction without numerical errors reaching critical values,
-while layer-wise invertibility is used within reversible blocks to bypass the local bottleneck.
+while layer-wise invertibility is used within reversible blocks to bypass the local memory bottleneck.
 
-Figure 11 shows the accumulation of numerical errors along the layers of both architectures,
+Figure 10 shows the inverse reconstruction error for each layer of both architectures,
 in order to visualize these phenomenon.
-This figure suggests that layer-wise invertible architecture can not scale with depth
+This figure suggests that layer-wise invertible architecture cannot scale with depth
 as numerical errors accumulate with depth.
 On the other hand, in the case of the hybrid architecture,
 one can see that numerical errors accumulate within reversible blocks,
 but that the long term trend of the SNR is stable
 due to the stable inverse operation of the reversible blocks.
 
-Figure 12 quantifies the degradation of the inverse reconstruction for the two models.
+Figure 11 quantifies the degradation of the inverse reconstruction for the two models.
 We found the two most impacting parameters to be the depth $N$ of the network and the negative slope $n$ of the activation function,
 so we show the evolution of the reconstruction errors when varying both parameters.
 
@@ -945,7 +945,7 @@ Without reconstruction, the hidden activation values are stored in memory along 
 and the gradient updates are computed from the true, noiseless activation values.
 With inverse reconstructions, activation values are recovered by inverse operators during the backward pass.
 Hence, the only difference between both settings is the noise introduced by the inverse reconstructions.
-In Figure 13, we show evolution of the accuracy with increasing depth.
+In Figure 12, we show evolution of the accuracy with increasing depth.
 
 In the case of the layer-wise invertible architecture:
 For small depths (or high negative slopes), in which the numerical errors are minimum, both models yield similar accuracy.
@@ -1307,35 +1307,18 @@ During this second phase, hidden activations are recomputed backward through eac
 }
 \end{figure}
 
-\begin{figure}[t]
-\includegraphics{Figure10.png}
-\caption{
-Evolution of the SNR through the layers of a (right) layer-wise invertible model and (left) hybrid architecture model.
-The x axis corresponds to layer indices of the model:
-Right-most values represent the top layer of the model,
-in which the least noise is observed.
-Left-most values represent input layers in which maximum levels of noise have accumulated.
-Right: Color boxes illustrate the span of two consecutive convolutional blocks (Convolution-normalization-activation layers).
-The SNR gets continuously degraded throughout each block of the network, resulting in numerical instabilities.
-Left: Color boxes illustrate consecutive reversible blocks.
-Within reversible blocks, the SNR quickly degrades due to the numerical errors introduced by invertible layers.
-However, the signal propagated to the input of each reversible block is recomputed using the reversible block inverse, which is much more stable.
-Hence, we can see a sharp decline of the SNR within the reversible blocks,
-but the SNR almost raises back to its original level at the input of each reversible block.
-}
-\end{figure}
 
 \begin{figure}[t]
 \includegraphics{Figure11.png}
 \caption{
-Evolution of the SNR through the layers of a (right) layer-wise invertible model and (left) hybrid architecture model.
+Evolution of the SNR through the layers of a (left) layer-wise invertible model and (right) hybrid architecture model.
 The lower the SNR is, the more  important numerical errors of the inverse reconstructions are.
 The x axis corresponds to layer indices of the model: Right-most values represent the top layer of the model,
 in which the least noise is observed.
 Left-most values represent input layers in which maximum levels of noise accumulate.
-Right: Color boxes illustrate the span of two consecutive convolutional blocks (Convolution-normalization-activation layers).
+(Left): Color boxes illustrate the span of two consecutive convolutional blocks (Convolution-normalization-activation layers).
 The SNR gets continuously degraded throughout each block of the network, resulting in numerical instabilities.
-Left: Color boxes illustrate consecutive reversible blocks.
+(Right): Color boxes illustrate consecutive reversible blocks.
 Within reversible blocks, the SNR quickly degrades due to the numerical errors introduced by invertible layers.
 However, the signal propagated to the input of each reversible block is recomputed using the reversible block inverse, which is much more stable.
 Hence, we can see a sharp decline of the SNR within the reversible blocks,
@@ -1347,7 +1330,7 @@ but the SNR almost raises back to its original level at the input of each revers
 \includegraphics{Figure12.png}
 \caption{
 Illustration of the impact of depth (in number of layers $N$) and negative slope $n$ on the numerical errors of
-(right) the layer-wise invertible architecture and (left) the hybrid architecture.
+(left) the layer-wise invertible architecture and (right) the hybrid architecture.
 Both figure shows the evolution of the SNR at the input layer of the network for increasing depth $N$ on the x axis,
 and with different negative slopes $n$ in different colors.
 
@@ -1355,10 +1338,12 @@ and with different negative slopes $n$ in different colors.
 At this point, the noise is of the same scale as the signal, and no learning can happen.
 These results were computed with a negative slope of $n=2$
 
-(Right) This figure shows the evolution of the SNR with different negative slopes $n$ for a layer-wise reversible model of depth 3.
+(Right): This figure shows the evolution of the SNR with different negative slopes $n$ for a layer-wise reversible model of depth 3.
 On a log-log scale, this figure shows an almost linear relationship between negative slope and SNR.
 It is impressive that with only three layer depth, a negative slope of $n=10^{-3}$ reaches a SNR superior to 1.
 With such parameterization, even the most shallow models are not capable of learning.
+
+
 }
 \end{figure}
 
