@@ -925,11 +925,16 @@ Instead, layer-wise invertibility can be combined with reversible block-level in
 Reversible blocks allow for long chain of reconstruction without numerical errors reaching critical values,
 while layer-wise invertibility is used within reversible blocks to bypass the local bottleneck.
 
-Figure XXX shows the accumulation of numerical errors in both architectures, in order to visualize these phenomenon.
-This figure suggests that layer-wise invertible architecture can not scale with depth as numerical errors accumulate.
-On the other hand, the hybrid architecture XXX.
+Figure 11 shows the accumulation of numerical errors along the layers of both architectures,
+in order to visualize these phenomenon.
+This figure suggests that layer-wise invertible architecture can not scale with depth
+as numerical errors accumulate with depth.
+On the other hand, in the case of the hybrid architecture,
+one can see that numerical errors accumulate within reversible blocks,
+but that the long term trend of the SNR is stable
+due to the stable inverse operation of the reversible blocks.
 
-Figure XXX and XXX quantify the degradation of the inverse reconstruction for different architectures.
+Figure 12 quantifies the degradation of the inverse reconstruction for the two models.
 We found the two most impacting parameters to be the depth $N$ of the network and the negative slope $n$ of the activation function,
 so we show the evolution of the reconstruction errors when varying both parameters.
 
@@ -940,7 +945,7 @@ Without reconstruction, the hidden activation values are stored in memory along 
 and the gradient updates are computed from the true, noiseless activation values.
 With inverse reconstructions, activation values are recovered by inverse operators during the backward pass.
 Hence, the only difference between both settings is the noise introduced by the inverse reconstructions.
-In Figure XXX, we show evolution of the accuracy with increasing XXX.
+In Figure 13, we show evolution of the accuracy with increasing depth.
 
 In the case of the layer-wise invertible architecture:
 For small depths (or high negative slopes), in which the numerical errors are minimum, both models yield similar accuracy.
@@ -1361,15 +1366,13 @@ With such parameterization, even the most shallow models are not capable of lear
 \begin{figure}[t]
 \includegraphics{Figure13.png}
 \caption{
-Impact of the numerical errors on the accuracy of layer-wise invertible models.
-(Left): Evolution of a 6-layer model accuracy with and without inverse reconstructions with the negative slope.
-Without reconstruction, the model accuracy benefits from smaller negative slopes.
-With inverse reconstructions, the model similarly benefits from smaller negative slopes as $n$ decreases from $1$ to $0.1$.
-For smaller negative slopes, however, the accuracy sharply decreases toward lower values due to numerical errors.
-(Right) Evolution of the accuracy with depth for a negative slope $n=0.2$ with and without inverse reconstructions.
+Impact of the numerical errors on the accuracy of (left) layer-wise invertible models and (right) hybrid architecture model.
+(Left): Evolution of the accuracy with depth for a negative slope $n=0.2$ with and without inverse reconstructions.
 Without reconstruction, the model accuracy benefits from depth.
 With inverse reconstructions, the model similarly benefits from depth as the number of layers grow from $3$ to $7$.
 For $N>7$, however, the accuracy sharply decreases toward lower values due to numerical errors.
+(Right) Our proposed hybrid architecture greatly stabilizes the numerical errors,
+which results in smaller effects of the depth and negative slope on accuracy.
 }
 \end{figure}
 
