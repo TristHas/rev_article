@@ -597,23 +597,19 @@ of reversible blocks, and the weight memory bottleneck respectively.
 \section{Method}
 
 RevNet and iRevNet architectures implement reversible transformations at the level of residual blocks.
-As we have seen in the previous section, the design of these reversible blocks create a local memory bottleneck as all hidden activations within a reversible block need to be computed before the gradients are backpropagated through the block.
-In order to circumvent this local bottleneck, we introduce layer-wise invertible operations.
+As we have seen in the previous section, the design of these reversible blocks create a local memory bottleneck
+as all hidden activations within a reversible block need to be computed before the gradients are backpropagated through the block.
+In order to circumvent this local bottleneck, we introduce layer-wise invertible operations in Section 4.2.
 However, these invertible operations introduce numerical errors, which we characterize in the following subsections.
 In Section 5, we will show that these numerical errors lead to instabilities that degrade the model accuracy.
-Hence, in Section 4.2, we propose a hybrid model combining layer-wise and residual block-wise reversible operations to stabilize training while resolving the local memory bottleneck at the cost of a small additional computational cost.
+Hence, in Section 4.4, we propose a hybrid model combining layer-wise and residual block-wise reversible operations
+to stabilize training while resolving the local memory bottleneck at the cost of a small additional computational cost.
+Section 4.1 starts by motivating the need for, and the methodology of, our numerical error analysis.
 
+\subsection{Numerical Error Analysis}
 
-\subsection{Layer-wise Invertibility}
-
-In this section, we present invertible layers that act as drop-in replacement for convolution, batch normalization, pooling and non-linearity layers.
-We then characterize the numerical instabilities arising from the invertible batch normalization and non-linearities.
-But first, we motivate the need for an analysis of numerical errors.
-
-\subsubsection{Numerical Error Accumulation}
-
-Layer-wise invertible networks are defined as the composition of invertible functions.
-During the backward pass, each layer is supposed to reconstruct its input $x$
+Invertible networks are defined as the composition of invertible operations.
+During the backward pass, each operation is supposed to reconstruct its input $x$
 given the value of its output $y$ using its inverse function:
 
  \begin{subequations}
@@ -623,9 +619,9 @@ given the value of its output $y$ using its inverse function:
    \end{align}
  \end{subequations}
 
-
 In reality, however, the output of the network is an approximation of its true analytical value due to floating point numbers' precision $\hat{y}=y+\epsilon_y$.
-Hence, the noisy input $\hat{x}$ reconstructed by the inverse operation contains a noise $\epsilon_x$ due to the noise $\epsilon_y$ in the output, and the error propagates through the successive inverse computations.
+Hence, the noisy input $\hat{x}$ reconstructed by the inverse operation contains a noise $\epsilon_x$ due to the noise $\epsilon_y$ in the output,
+and the error propagates through the successive inverse computations.
 
  \begin{subequations}
    \begin{align}
@@ -635,7 +631,11 @@ Hence, the noisy input $\hat{x}$ reconstructed by the inverse operation contains
    \end{align}
  \end{subequations}
 
-For each layer, we can compute the Signal to Noise Ratio (SNR) of its output and input respectively:
+The operation $f$ may either refer to an individual layer,
+as is the case for the layer-wise invertible architecture we propose in this paper,
+or at the level of residual blocks as for the reversible blocks proposed in RevNet or iRevNet.
+
+For each operation, we can compute the Signal to Noise Ratio (SNR) of its output and input respectively:
 
 \begin{subequations}
 \begin{align}
@@ -665,6 +665,11 @@ Hence, the noise $\epsilon_i$ in the reconstructed and noisy input $\hat{z_i}$ c
 As $z_i$ is used in the computation of layer $i$'s weights' gradients according to equation 4,
 accumulated errors yield noisy gradients which prevent the network from converging as the SNR reaches certain levels.
 Hence, it is important to characterize the factor $\alpha$ for the different invertible layers proposed below.
+
+\subsection{Layer-wise Invertibility}
+
+In this section, we present invertible layers that act as drop-in replacement for convolution, batch normalization, pooling and non-linearity layers.
+We then characterize the numerical instabilities arising from the invertible batch normalization and non-linearities.
 
 \subsubsection{Invertible batch normalization}
 
@@ -724,7 +729,8 @@ arise from the inverse computation as $\gamma$ parameters tend towards zero.
 \subsubsection{Invertible activation function}
 
 A good invertible activation function must be bijective (to guarantee the existence of an inverse function) and non-saturating (for numerical stability).
-For these properties, we focus our attention on Leaky ReLUs whose forward $f$ and inverse $f^{-1}$ computations are defined, for a negative slope parameter $n$, as follow:
+For these properties, we focus our attention on Leaky ReLUs whose forward $f$ and inverse $f^{-1}$ computations are defined,
+for a negative slope parameter $n$, as follow:
 
 \begin{subequations}
 \begin{align}
@@ -755,7 +761,8 @@ and, in Section 5.1, we investigate the impact of the negative slope parameter o
 It should be noted that this equation only holds for the regime $|y|^2 >> |\epsilon_y|^2$.
 When the noise reaches an amplitude similar to or greater than the activation signal, this equation no longer holds.
 However, in this regime, the signal to noise ratio becomes too low for training to converge,
-as numerical errors prevent any useful weight update, so we have left the problem of characterizing this regime open.
+as numerical errors prevent any useful weight update.
+We have thus left the problem of characterizing this regime open.
 
 \subsubsection{Invertible convolutions}
 
@@ -763,21 +770,23 @@ Invertible convolution layers can be defined in several ways.
 The inverse operation of a convolution is often referred to as deconvolution,
 and is defined for a subspace of the kernel weight space.
 
-However, deconvolutions are computationally expensive and subject to numerical errors.
-Instead, we choose to implement invertible convolutions using the channel partitioning scheme as the reversible block design for its simplicity,
-numerical stability and computational efficiency.
+However, deconvolutions are computationally expensive and prone to numerical errors.
+Instead, we choose to implement invertible convolutions using the channel partitioning scheme
+of the reversible block for its simplicity,numerical stability and computational efficiency.
 Hence, invertible convolutions, in our architecture, can be seen as minimal reversible blocks
- in which both modules consist of a single convolution.
+in which both modules consist of a single convolution.
 Gomez \etal \cite{gomez2017reversible} found the numerical errors introduced by reversible blocks to have no impact on the model accuracy.
 Similarly, we found reversible blocks extremely stable yielding negligible numerical errors
-compared to the invertible batch normalization and Leaky ReLU layers.
+compared to the invertible Batch Normalization $\alpha_{Rev} \ll \alpha_{BN}$
+and Leaky ReLU layers $\alpha_{Rev} \ll \alpha_{LReLU}$.
 
 \subsubsection{Pooling}
 
 In \cite{jacobsen2018revnet}, the authors propose an invertible pooling operation that operates
 by stacking the neighboring elements of the pooling regions along the channel dimension.
 As noted in Section 3.5, the increase in channel size at each pooling level
-induces a quadratic increase in the number of parameters of upstream convolution, which creates a new memory bottleneck.
+induces a quadratic increase in the number of parameters of upstream convolution,
+which creates a new memory bottleneck.
 
 To circumvent this quadratic increase in the memory cost of the weight,
 we propose a new pooling layer that stacks the elements of neighboring pooling regions along the batch size instead of the channel size.
@@ -796,9 +805,15 @@ the reshaping operation performed by both pooling layers can be formalized as fo
 \end{align}
 \end{subequations}
 
-Channel pooling gives us a way to perform volume-preserving pooling operations while increasing the number of channels at a given layer of the architecture,
-while batch pooling gives us a way to perform volume-preserving pooling operations while keeping the number of channel constant,
-By alternating between channel and batch pooling, we can control the number of channels at each pooling level of the model's architecture.
+Channel pooling gives us a way to perform volume-preserving pooling operations
+while increasing the number of channels at a given layer of the architecture,
+while batch pooling gives us a way to perform volume-preserving pooling operations
+while keeping the number of channel constant,
+By alternating between channel and batch pooling, we can control the number
+of channels at each pooling level of the model's architecture.
+
+As this pooling operation only performs a reshaping between input and output,
+it does not induce any numerical error: $\alpha_{Pool}=1$
 
 \subsubsection{Layer-wise invertible architecture}
 
@@ -814,14 +829,26 @@ The peak memory usage for a training iteration of this architecture, as paramete
 \end{subequations}
 
 Training an iteration over a typical batch of 32 images with resolution $240 \times 240$ would require $\mathcal{M}=590$MB of VRAM.
-Similar to the RevNet architecture, the reconstruction of the hidden activations by inverse transformations during the backward pass comes with an additional computational cost similar to a forward pass.
+Similar to the RevNet architecture, the reconstruction of the hidden activations by inverse transformations
+during the backward pass comes with an additional computational cost similar to a forward pass.
+
+As analyzed in the previous section, the numerical errors in this architecture are dominated by Batch Normalization and Leaky ReLU layers.
+Following equation XXX, the numerical error associated with the activations at a given layer $i$ in this architecture can thus be approximated by:
+
+\begin{equation}
+\epsilon_i |^2 =  \frac{| \epsilon_y |^2 \times | z_i |^2}{| y |^2} \times \prod_i^{N} \alpha_{LReLU} \times \alpha_{BN} \\
+\end{equation}
+
+In which $N$ represents the number of Batch Normalization and Leaky ReLU layers between the layer $i$ and the output.
 
 \subsection{Hybrid architecture}
 
 In section 3, we saw that layer-wise activation and normalization layers degrade the signal to noise ratio of the reconstructed activations.
-In section 5.1, we will quantify the accumulation of numerical errors through long chains of layer-wise invertible operations and show that numerical errors negatively impact model accuracy.
+In section 5.1, we will quantify the accumulation of numerical errors through long chains of layer-wise invertible operations
+and show that numerical errors negatively impact model accuracy.
 
-To prevent these numerical instabilities, we introduce a hybrid architecture, illustrated in Figure 8, combining reversible residual blocks with layer-wise invertible functions.
+To prevent these numerical instabilities, we introduce a hybrid architecture, illustrated in Figure 8,
+combining reversible residual blocks with layer-wise invertible functions.
 Conceptually, the role of the residual level reversible block is to reconstruct the input activation of residual blocks with minimal errors,
 while the role of the layer-wise invertible layers is to efficiently recompute the hidden activations within the reversible residual
 blocks at the same time as the gradient propagates to circumvent the local memory bottleneck of the reversible module.
@@ -834,7 +861,8 @@ As each layer within these modules is invertible, the hidden activation values
 are computed using the layer-wise inverse along the gradient.
 
 The analytical inverse of the residual level reversible blocks is used to propagate hidden activations with minimal reconstruction error to the lower modules,
-while layer-wise inversion allows us to alleviate the local bottleneck of the reversible block by computing the hidden activation values together with the backward flow of the gradients.
+while layer-wise inversion allows us to alleviate the local bottleneck of the reversible block
+by computing the hidden activation values together with the backward flow of the gradients.
 As layer-wise inverses are only used for hidden feature computations within the scope of the reversible block,
 and reversible blocks are made of relatively short chains of operations,
 numerical errors do not accumulate up to a damaging degree.
@@ -854,6 +882,20 @@ It should be noted, however, that this architecture adds an extra computational 
 Hence, instead of one additional forward pass, as in the RevNet and layer-wise architectures,
 our hybrid architecture comes with a computational cost equivalent to performing two additional forward passes
 during the backward pass.
+
+Following equation XXX, the numerical error associated with the activations at a given layer $i$ in this architecture are given by:
+
+\begin{equation}
+\epsilon_i |^2 =  \frac{| \epsilon_y |^2 \times | z_i |^2}{| y |^2} \times \prod_i^{K} \alpha_{Rev} \\
+\end{equation}
+
+In which $K$ represents the number of reversible blocks between the layer $i$ and the output.
+
+Comparing this equation to equation XXX, the stability of this architecure is due to the following two factors:
+First the number of reversible blocks $K$ is typically two to three times smaller
+than the number of layers $N$ as a reversible block is typically made of several convolutions: $K<N$.
+Second, and most importantly, the SNR reduction factor is much smaller in reversible blocks
+than in Batch Normalization $\alpha_{Rev} \ll \alpha_{BN}$ and Leaky ReLU layers $\alpha_{Rev} \ll \alpha_{LReLU}$.
 
 \section{Results and Discussion}
 
