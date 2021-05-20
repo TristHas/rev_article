@@ -1,0 +1,48 @@
+General comments:
+
+Thank you reviewers for your reviews.
+We have come to realize that the original version of the paper we have sent you lacked structure and we apologize for the first read that must have been painful. We have done our best to better structure the paper and improve on our presentation.
+
+
+Individual comments:
+
+Dear reviewer #1, 
+
+We thank you for comments, the following actions have been taken in order to answer your comments:
+・　We have cleaned up our code base and made it available on Github at the link referenced in the paper.
+・　We have given a name to the proposed model (RevNeXt, see section 5)
+・　The table indeed contained an error, the GPU names were swapped. We have fixed that, thank you for bringing it to our attention. 
+
+
+Dear reviewer #2,
+
+Thank you for your thoughtful review.
+We have realized that the structure was indeed pretty bad. We have brought a number of modifications to improve readability, and coherence to the structure of the paper as follow:
+
+Section 3: In the first version of the paper, the definitions of the memory footprint and the goals were mixed in with the analysis of particular architectures. We have restructured our explanations so as to keep the analysis of existing models separate from the definition of the goals and methodology.
+
+Section 4 was completely restructured.
+- The full proofs of the numerical error analysis were expanded with further comments and relegated to the appendix in order to keep the storyline of the paper clean.
+- We included both a motivation for the need of the numerical error analysis, and a detailed description of the methodology as Section 4.1. In particular, equation 19 was introduced as a bridge between Section 4.3 and 4.4 to make it easier to understand why the Hybrid architecture solves the problem of the layer-wise invertible architecture.
+- Section 4.2 now only presents invertible layers, while Section 4.3 and 4.4 are devoted to layer-wise and hybrid architectures respectively.
+We hope this restructuring improve readability.
+
+Section 5 has been rewritten, and figures updates.
+We have tried to better express the two findings of the paper in two distinct subsections:
+5.1. Layer-wise invertibility is an attractive idea to reduce training memory cost but it doesn’t work due to numerical errors. 
+5.2. However, coupling layer-wise invertibility with block-level reversibility does stabilize training, while maintaining low memory costs.
+
+
+Concerning you comments 1 and 2:
+
+1) some typos spreading thru the paper. better check carefully.
+We have fixed a number of typos and the text has been submitted to proofreading through both automated tools (grammarly) and native English proofreading.
+
+2) The following details were provided about the training setup:
+
+
+
+We did not include any error curve during training as all models reached convergence in a similar pattern, around epoch 45 out of 50. We did not believe that these curves would bring interesting insights to be included in the paper. However, we have opened the source code of the experiments, in which the convergence behavior can be easily checked by interested readers.
+
+
+
