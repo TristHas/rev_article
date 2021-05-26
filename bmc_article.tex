@@ -906,14 +906,15 @@ than in Batch Normalization $\alpha_{Rev} \ll \alpha_{BN}$ and Leaky ReLU layers
 
 This section is organized in two parts:
 First, we start by analyzing numerical errors arising in both the layer-wise invertible and hybrid architectures.
-Second, we compare our hybrid architecture to existing models. 
+Second, we compare our hybrid architecture to existing models.
 
-All our experiments use the CIFAR10 dataset as a benchmark. 
+All our experiments use the CIFAR10 dataset as a benchmark.
 The CIFAR10 dataset is complex enough to require efficient architectures to reach high accuracy,
 yet small enough to enable us to rapidly iterate over different architectural designs.
 
 Unless stated otherwise, all models were trained for 50 epochs of stochastic gradient descent with cyclical learning rate
-and momentum \cite{smith2017super} with minimal image augmentation. The code used to produce the results is available here: https://github.com/TristHas/reversibility_paper. 
+and momentum \cite{smith2017super} with minimal image augmentation. The code used to produce the results is available at the link given in the "Availability of data and material section".
+
 
 \subsection{Impact of Numerical stability}
 
@@ -1031,17 +1032,20 @@ RevNet: Reversible Network
 
 \begin{backmatter}
 \section*{Availability of data and material}
-The data used in this work is publicly available online, and the code will be made available on GitHub.
+The data used in this work is publicly available online.
+The code used for the experiments is available on GitHub at the following address:
+https://github.com/TristHas/reversibility\_paper
 
 \section*{Competing interests}
 The authors declare that they have no competing interests.
 
 \section*{Author's contributions}
-T.H and Q.F equally contributed to the investigation and implementation presented in this work. T.T and Y.A jointly supervised this project.
+T.H and Q.F equally contributed to the investigation and implementation presented in this work.
 
 \section*{Funding}
 This work was supported by a scholarship MEXT from the Japanese Ministry of Education, Culture, Sports, Science, and Technology.
 A part of this study is subsidized by JSPS Grant-in-Aid for Scientific Research and Research granted JP 17K00236.
+A part of this study is subsidized by JSPS Grant-in-Aid for Scientific Research and Research granted JP 19K24344 and JP 20K19823.
 This work was supported in part by PRESTO, JST (Grant No. JPMJPR15D2).
 
 \section*{Acknowledgements}
